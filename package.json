@@ -1,0 +1,11 @@
+{
+  "name": "ng",
+  "version": "0.0.0",
+  "description": "Toy AngularJS implementation",
+  "readme": "README.md",
+  "dependencies": {},
+  "devDependencies": {
+    "gulp": "^3.6.2",
+    "gulp-traceur": "^0.5.0"
+  }
+}
