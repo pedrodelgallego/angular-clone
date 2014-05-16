@@ -77,11 +77,48 @@ describe("Scope", (function() {
       scope.$digest();
       expect(scope.counter).to.equal(1);
     }));
-    it("may have watchers that omit the listener functionfunction", (function() {
-      var watchFn = sinon.stub().returns('something');
-      scope.$watch(watchFn);
+    it("triggers chained watchers in the same digest", (function() {
+      scope.name = 'Jane';
+      var watchFn = (function(scope) {
+        return scope.nameUpper;
+      });
+      var listenerFn = (function(newValue, oldValue, scope) {
+        if (newValue) {
+          scope.initial = newValue.substring(0, 1) + '.';
+        }
+      });
+      scope.$watch(watchFn, listenerFn);
+      var watchFn2 = (function(scope) {
+        return scope.name;
+      });
+      var listenerFn2 = (function(newValue, oldValue, scope) {
+        if (newValue) {
+          scope.nameUpper = newValue.toUpperCase();
+        }
+      });
+      scope.$watch(watchFn2, listenerFn2);
       scope.$digest();
-      expect(watchFn.callCount).to.equal(1);
+      expect(scope.initial).to.equal('J.');
+      scope.name = 'Bob';
+      scope.$digest();
+      expect(scope.initial).to.equal('B.');
     }));
+    it("gives up on the watches after 10 iterations", function() {
+      scope.counterA = 0;
+      scope.counterB = 0;
+      scope.$watch(function(scope) {
+        return scope.counterA;
+      }, function(newValue, oldValue, scope) {
+        scope.counterB++;
+      });
+      scope.$watch(function(scope) {
+        return scope.counterB;
+      }, function(newValue, oldValue, scope) {
+        scope.counterA++;
+      });
+      expect((function() {
+        scope.$digest();
+      })).to.throw(/10 digest iterations reached/);
+    });
   }));
 }));

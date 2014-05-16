@@ -19,18 +19,33 @@ var Scope = function Scope() {
       last: uniqueValue
     });
   },
-  $digest: function() {
+  $$digestOnce: function() {
+    var dirty,
+        newValue,
+        oldValue;
     for (var $__1 = this.$$watchers[Symbol.iterator](),
         $__2; !($__2 = $__1.next()).done; ) {
       var watcher = $__2.value;
       {
-        var newValue = watcher.watchFn(this);
+        newValue = watcher.watchFn(this);
         if (watcher.last !== newValue) {
-          var oldValue = watcher.last === uniqueValue ? newValue : watcher.last;
+          oldValue = watcher.last === uniqueValue ? newValue : watcher.last;
           watcher.listenerFn(newValue, oldValue, this);
           watcher.last = newValue;
+          dirty = true;
         }
       }
     }
+    return dirty;
+  },
+  $digest: function() {
+    var dirty,
+        count = 0;
+    do {
+      if (count++ > 10) {
+        throw "10 digest iterations reached";
+      }
+      dirty = this.$$digestOnce();
+    } while (dirty);
   }
 }, {});
