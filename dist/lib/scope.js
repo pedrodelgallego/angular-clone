@@ -11,7 +11,8 @@ var Scope = function Scope() {
   this.$$watchers = [];
 };
 ($traceurRuntime.createClass)(Scope, {
-  $watch: function(watchFn, listenerFn) {
+  $watch: function(watchFn) {
+    var listenerFn = arguments[1] !== (void 0) ? arguments[1] : (function() {});
     this.$$watchers.push({
       watchFn: watchFn,
       listenerFn: listenerFn,

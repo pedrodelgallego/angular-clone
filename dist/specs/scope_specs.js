@@ -65,7 +65,7 @@ describe("Scope", (function() {
       scope.$digest();
       expect(oldValueGiven).to.equal(123);
     }));
-    it("calls listener when watch value is first undefined", function() {
+    it("calls listener when watch value is first undefined", (function() {
       scope.counter = 0;
       var watchFn = (function(scope) {
         return scope.someValue;
@@ -76,6 +76,12 @@ describe("Scope", (function() {
       scope.$watch(watchFn, listenerFn);
       scope.$digest();
       expect(scope.counter).to.equal(1);
-    });
+    }));
+    it("may have watchers that omit the listener functionfunction", (function() {
+      var watchFn = sinon.stub().returns('something');
+      scope.$watch(watchFn);
+      scope.$digest();
+      expect(watchFn.callCount).to.equal(1);
+    }));
   }));
 }));

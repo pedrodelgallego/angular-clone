@@ -8,8 +8,8 @@ export class Scope {
     this.$$watchers = [];
   }
 
-  $watch(watchFn, listenerFn) {
-    this.$$watchers.push({ watchFn, listenerFn, last: uniqueValue });
+  $watch(watchFn, listenerFn = () => {}) {
+    this.$$watchers.push({watchFn, listenerFn, last: uniqueValue });
   }
 
   $digest(){
