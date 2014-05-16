@@ -18,7 +18,7 @@ describe("Scope", () => {
     });
 
     it("calls the listener function of a watch on first $digest", () => {
-      var watchFn = function() { return 'wat'; };
+      var watchFn = () => 'wat';
       var listenerFn = sinon.spy();
       scope.$watch(watchFn, listenerFn);
       scope.$digest();
@@ -39,8 +39,8 @@ describe("Scope", () => {
       scope.counter = 0;
       expect(scope.counter).to.equal(0);
 
-      var watchFn  = (scope) => {return scope.someValue;}
-      var listenerFn = (newValue, oldValue, scope) => { scope.counter++; }
+      var watchFn  = scope => scope.someValue;
+      var listenerFn = (newValue, oldValue, scope) => scope.counter++;
       scope.$watch(watchFn, listenerFn);
 
       expect(scope.counter).to.equal(0);
@@ -61,13 +61,22 @@ describe("Scope", () => {
     it("calls listener with new value as old value the first time", () => {
       scope.someValue = 123;
       var oldValueGiven;
-      var watchFn = (scope) => { return scope.someValue; };
-      var listenerFn = (newValue, oldValue, scope) => {oldValueGiven = oldValue; };
+      var watchFn    = scope =>  scope.someValue;
+      var listenerFn = (newValue, oldValue, scope) => oldValueGiven = oldValue;
 
       scope.$watch(watchFn, listenerFn);
-
       scope.$digest();
       expect(oldValueGiven).to.equal(123);
+    });
+
+    it("calls listener when watch value is first undefined", function() {
+      scope.counter = 0;
+      var watchFn    = scope => scope.someValue;
+      var listenerFn = (newValue, oldValue, scope) => scope.counter++;
+
+      scope.$watch(watchFn, listenerFn);
+      scope.$digest();
+      expect(scope.counter).to.equal(1);
     });
   });
 });

@@ -16,9 +16,9 @@ describe("Scope", (function() {
       scope = new Scope();
     }));
     it("calls the listener function of a watch on first $digest", (function() {
-      var watchFn = function() {
+      var watchFn = (function() {
         return 'wat';
-      };
+      });
       var listenerFn = sinon.spy();
       scope.$watch(watchFn, listenerFn);
       scope.$digest();
@@ -39,7 +39,7 @@ describe("Scope", (function() {
         return scope.someValue;
       });
       var listenerFn = (function(newValue, oldValue, scope) {
-        scope.counter++;
+        return scope.counter++;
       });
       scope.$watch(watchFn, listenerFn);
       expect(scope.counter).to.equal(0);
@@ -59,11 +59,23 @@ describe("Scope", (function() {
         return scope.someValue;
       });
       var listenerFn = (function(newValue, oldValue, scope) {
-        oldValueGiven = oldValue;
+        return oldValueGiven = oldValue;
       });
       scope.$watch(watchFn, listenerFn);
       scope.$digest();
       expect(oldValueGiven).to.equal(123);
     }));
+    it("calls listener when watch value is first undefined", function() {
+      scope.counter = 0;
+      var watchFn = (function(scope) {
+        return scope.someValue;
+      });
+      var listenerFn = (function(newValue, oldValue, scope) {
+        return scope.counter++;
+      });
+      scope.$watch(watchFn, listenerFn);
+      scope.$digest();
+      expect(scope.counter).to.equal(1);
+    });
   }));
 }));

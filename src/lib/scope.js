@@ -13,7 +13,7 @@ export class Scope {
   }
 
   $digest(){
-    this.$$watchers.forEach((watcher) =>  {
+    for (var watcher of this.$$watchers){
       var newValue = watcher.watchFn(this);
 
       if (watcher.last !== newValue) {
@@ -25,8 +25,6 @@ export class Scope {
         watcher.listenerFn(newValue, oldValue, this);
         watcher.last = newValue;
       }
-    });
+    }
   }
-
-
 }

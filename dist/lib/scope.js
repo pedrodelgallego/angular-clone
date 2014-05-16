@@ -19,14 +19,17 @@ var Scope = function Scope() {
     });
   },
   $digest: function() {
-    var $__0 = this;
-    this.$$watchers.forEach((function(watcher) {
-      var newValue = watcher.watchFn($__0);
-      if (watcher.last !== newValue) {
-        var oldValue = watcher.last === uniqueValue ? newValue : watcher.last;
-        watcher.listenerFn(newValue, oldValue, $__0);
-        watcher.last = newValue;
+    for (var $__1 = this.$$watchers[Symbol.iterator](),
+        $__2; !($__2 = $__1.next()).done; ) {
+      var watcher = $__2.value;
+      {
+        var newValue = watcher.watchFn(this);
+        if (watcher.last !== newValue) {
+          var oldValue = watcher.last === uniqueValue ? newValue : watcher.last;
+          watcher.listenerFn(newValue, oldValue, this);
+          watcher.last = newValue;
+        }
       }
-    }));
+    }
   }
 }, {});
