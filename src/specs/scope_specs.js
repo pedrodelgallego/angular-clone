@@ -6,17 +6,15 @@ var expect = chai.expect;
 import {Scope} from "../lib/scope.js"
 
 describe("Scope", () => {
+  var scope;
+  beforeEach(() => { scope = new Scope(); });
+
   it("can be constructed and used as an object", () => {
-    var scope = new Scope();
     scope.aProperty = 1;
     expect(scope.aProperty).to.equal(1);
   });
 
   describe("digest", () => {
-    var scope;
-    beforeEach(() => {
-      scope = new Scope();
-    });
 
     it("calls the listener function of a watch on first $digest", () => {
       var watchFn = () => 'wat';
@@ -158,6 +156,20 @@ describe("Scope", () => {
       scope.$digest();
       expect(scope.counter).to.equal(2);
     });
+  });
 
+  describe("$eval", ()=>{
+    it("executes $eval'ed function and returns result", function() {
+      scope.aValue = 42;
+
+      var result = scope.$eval(scope => scope.aValue);
+      expect(result).to.equal(42);
+    });
+
+    it("passes the second $eval argument straight through", function() {
+      scope.aValue = 45;
+      var result = scope.$eval((scope, foo, bar) => scope.aValue + foo + bar, 2, 3);
+      expect(result).to.equal(50);
+    });
   });
 });

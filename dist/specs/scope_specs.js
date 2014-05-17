@@ -6,16 +6,15 @@ var _ = require('lodash');
 var expect = chai.expect;
 var Scope = $traceurRuntime.assertObject(require("../lib/scope.js")).Scope;
 describe("Scope", (function() {
+  var scope;
+  beforeEach((function() {
+    scope = new Scope();
+  }));
   it("can be constructed and used as an object", (function() {
-    var scope = new Scope();
     scope.aProperty = 1;
     expect(scope.aProperty).to.equal(1);
   }));
   describe("digest", (function() {
-    var scope;
-    beforeEach((function() {
-      scope = new Scope();
-    }));
     it("calls the listener function of a watch on first $digest", (function() {
       var watchFn = (function() {
         return 'wat';
@@ -158,5 +157,21 @@ describe("Scope", (function() {
       scope.$digest();
       expect(scope.counter).to.equal(2);
     }));
+  }));
+  describe("$eval", (function() {
+    it("executes $eval'ed function and returns result", function() {
+      scope.aValue = 42;
+      var result = scope.$eval((function(scope) {
+        return scope.aValue;
+      }));
+      expect(result).to.equal(42);
+    });
+    it("passes the second $eval argument straight through", function() {
+      scope.aValue = 45;
+      var result = scope.$eval((function(scope, foo, bar) {
+        return scope.aValue + foo + bar;
+      }), 2, 3);
+      expect(result).to.equal(50);
+    });
   }));
 }));

@@ -43,6 +43,7 @@ export class Scope {
         // should not leak the uniqueValue to the method, instead pass
         // the new value to the scope as the last iteration
         watcher.listener(newValue, (watcher.last === uniqueValue? newValue : watcher.last), this);
+
         watcher.last = (watcher.eq ? cloneDeep(newValue) : newValue);
         dirty = true;
       } else if (this.$$lastDirtyWatch === watcher) {
@@ -53,7 +54,6 @@ export class Scope {
   }
 
   $digest() {
-
     var dirty, count = 10;
     this.$$lastDirtyWatch = null;
 
@@ -65,5 +65,10 @@ export class Scope {
       dirty = this.$$digestOnce();
     } while(dirty);
   }
+
+  $eval(fn, ...locals){
+    return fn(this, ...locals)
+  }
+
 
 }

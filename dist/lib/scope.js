@@ -6,9 +6,9 @@ Object.defineProperties(exports, {
   __esModule: {value: true}
 });
 var __moduleName = "scope";
-var $__3 = $traceurRuntime.assertObject(require("lodash")),
-    isEqual = $__3.isEqual,
-    cloneDeep = $__3.cloneDeep;
+var $__4 = $traceurRuntime.assertObject(require("lodash")),
+    isEqual = $__4.isEqual,
+    cloneDeep = $__4.cloneDeep;
 var uniqueValue = (function() {});
 var Scope = function Scope() {
   this.$$watchers = [];
@@ -63,5 +63,11 @@ var Scope = function Scope() {
       }
       dirty = this.$$digestOnce();
     } while (dirty);
+  },
+  $eval: function(fn) {
+    for (var locals = [],
+        $__3 = 1; $__3 < arguments.length; $__3++)
+      locals[$__3 - 1] = arguments[$__3];
+    return fn.apply(null, $traceurRuntime.spread([this], locals));
   }
 }, {});
