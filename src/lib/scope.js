@@ -6,6 +6,7 @@ var uniqueValue = () => { };
 export class Scope {
   constructor(){
     this.$$watchers = [];
+    this.$$lastDirtyWatch = null;
   }
 
   $watch(watchFn, listenerFn = () => {}) {
@@ -18,6 +19,9 @@ export class Scope {
       newValue = watcher.watchFn(this);
 
       if (watcher.last !== newValue) {
+
+        this.$$lastDirtyWatch = watcher;
+
         // if the last value is equal to the uniqueValue, them we
         // should not leak the uniqueValue to the method, instead pass
         // the new value to the scope as the old value
@@ -26,15 +30,18 @@ export class Scope {
         watcher.listenerFn(newValue, oldValue, this);
         watcher.last = newValue;
         dirty = true;
+      } else if (this.$$lastDirtyWatch === watcher) {
+        break;
       }
     }
     return dirty;
   }
 
   $digest() {
-    var dirty, count = 0;
+    var dirty, count = 10;
+    this.$$lastDirtyWatch = null;
     do {
-      if(count++ > 10){
+      if(!count--){
         throw "10 digest iterations reached";
       }
 

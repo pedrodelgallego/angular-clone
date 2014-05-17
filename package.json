@@ -14,6 +14,7 @@
     "chai": "^1.9.1",
     "gulp-concat": "^2.2.0",
     "traceur": "0.0.41",
-    "sinon": "^1.9.1"
+    "sinon": "^1.9.1",
+    "underscore": "^1.6.0"
   }
 }

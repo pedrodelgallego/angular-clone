@@ -9,6 +9,7 @@ var __moduleName = "scope";
 var uniqueValue = (function() {});
 var Scope = function Scope() {
   this.$$watchers = [];
+  this.$$lastDirtyWatch = null;
 };
 ($traceurRuntime.createClass)(Scope, {
   $watch: function(watchFn) {
@@ -29,10 +30,13 @@ var Scope = function Scope() {
       {
         newValue = watcher.watchFn(this);
         if (watcher.last !== newValue) {
+          this.$$lastDirtyWatch = watcher;
           oldValue = watcher.last === uniqueValue ? newValue : watcher.last;
           watcher.listenerFn(newValue, oldValue, this);
           watcher.last = newValue;
           dirty = true;
+        } else if (this.$$lastDirtyWatch === watcher) {
+          break;
         }
       }
     }
@@ -40,9 +44,10 @@ var Scope = function Scope() {
   },
   $digest: function() {
     var dirty,
-        count = 0;
+        count = 10;
+    this.$$lastDirtyWatch = null;
     do {
-      if (count++ > 10) {
+      if (!count--) {
         throw "10 digest iterations reached";
       }
       dirty = this.$$digestOnce();

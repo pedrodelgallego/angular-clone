@@ -1,5 +1,6 @@
 var chai = require('chai');
 var sinon = require('sinon');
+var _ = require('underscore');
 var expect = chai.expect;
 
 import {Scope} from "../lib/scope.js"
@@ -109,7 +110,7 @@ describe("Scope", () => {
       expect(scope.initial).to.equal('B.');
     });
 
-    it("gives up on the watches after 10 iterations", function() {
+    it("gives up on the watches after 10 iterations", () => {
       scope.counterA = 0;
       scope.counterB = 0;
       scope.$watch(
@@ -126,6 +127,27 @@ describe("Scope", () => {
       );
       expect((function() { scope.$digest(); })).to.throw(/10 digest iterations reached/);
     });
-  });
 
+    it("ends the digest when the last watch is clean", function() {
+      scope.array = [0,1,2,3,4,5,6,7,8,9];
+      var watchExecutions = 0;
+
+      _.times(10, function(i) {
+        scope.$watch(
+          (scope) => {
+            watchExecutions++;
+            return scope.array[i];
+          },
+          () => {}
+        );
+      });
+
+      scope.$digest();
+      expect(watchExecutions).to.equal(20);
+      scope.array[0] = 42;
+      scope.$digest();
+      expect(watchExecutions).to.equal(31);
+    });
+
+  });
 });
