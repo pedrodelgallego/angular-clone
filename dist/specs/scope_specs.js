@@ -2,7 +2,7 @@
 var __moduleName = "scope_specs";
 var chai = require('chai');
 var sinon = require('sinon');
-var _ = require('underscore');
+var _ = require('lodash');
 var expect = chai.expect;
 var Scope = $traceurRuntime.assertObject(require("../lib/scope.js")).Scope;
 describe("Scope", (function() {
@@ -78,6 +78,12 @@ describe("Scope", (function() {
       scope.$digest();
       expect(scope.counter).to.equal(1);
     }));
+    it("may have watchers that omit the listener function", (function() {
+      var watchFn = sinon.stub().returns('something');
+      scope.$watch(watchFn);
+      scope.$digest();
+      expect(watchFn.callCount).to.not.equal(0);
+    }));
     it("triggers chained watchers in the same digest", (function() {
       scope.name = 'Jane';
       var watchFn = (function(scope) {
@@ -107,34 +113,50 @@ describe("Scope", (function() {
     it("gives up on the watches after 10 iterations", (function() {
       scope.counterA = 0;
       scope.counterB = 0;
-      scope.$watch(function(scope) {
+      scope.$watch((function(scope) {
         return scope.counterA;
-      }, function(newValue, oldValue, scope) {
+      }), (function(newValue, oldValue, scope) {
         scope.counterB++;
-      });
-      scope.$watch(function(scope) {
+      }));
+      scope.$watch((function(scope) {
         return scope.counterB;
-      }, function(newValue, oldValue, scope) {
+      }), (function(newValue, oldValue, scope) {
         scope.counterA++;
-      });
-      expect((function() {
+      }));
+      expect(((function() {
         scope.$digest();
-      })).to.throw(/10 digest iterations reached/);
+      }))).to.throw(/10 digest iterations reached/);
     }));
     it("ends the digest when the last watch is clean", function() {
-      scope.array = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+      scope.array = _.range(100);
       var watchExecutions = 0;
-      _.times(10, function(i) {
+      _.times(100, function(i) {
         scope.$watch((function(scope) {
           watchExecutions++;
           return scope.array[i];
         }), (function() {}));
       });
       scope.$digest();
-      expect(watchExecutions).to.equal(20);
+      expect(watchExecutions).to.equal(200);
       scope.array[0] = 42;
       scope.$digest();
-      expect(watchExecutions).to.equal(31);
+      expect(watchExecutions).to.equal(301);
     });
+    it("compares based on value if enabled", (function() {
+      scope.aValue = [1, 2, 3];
+      scope.counter = 0;
+      var watchFn = (function(scope) {
+        return scope.aValue;
+      });
+      var listenerFn = (function(newValue, oldValue, scope) {
+        return scope.counter++;
+      });
+      scope.$watch(watchFn, listenerFn, true);
+      scope.$digest();
+      expect(scope.counter).to.equal(1);
+      scope.aValue.push(4);
+      scope.$digest();
+      expect(scope.counter).to.equal(2);
+    }));
   }));
 }));

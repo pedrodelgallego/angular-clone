@@ -6,34 +6,45 @@ Object.defineProperties(exports, {
   __esModule: {value: true}
 });
 var __moduleName = "scope";
+var $__3 = $traceurRuntime.assertObject(require("lodash")),
+    isEqual = $__3.isEqual,
+    cloneDeep = $__3.cloneDeep;
 var uniqueValue = (function() {});
 var Scope = function Scope() {
   this.$$watchers = [];
   this.$$lastDirtyWatch = null;
 };
 ($traceurRuntime.createClass)(Scope, {
-  $watch: function(watchFn) {
-    var listenerFn = arguments[1] !== (void 0) ? arguments[1] : (function() {});
+  $$areEqual: function(o1, o2, eq) {
+    if (eq) {
+      return isEqual(o1, o2);
+    } else {
+      return o1 === o2 || (typeof o1 === 'number' && typeof o2 === 'number' && isNaN(o1) && isNaN(o2));
+    }
+  },
+  $watch: function(watchExp) {
+    var listener = arguments[1] !== (void 0) ? arguments[1] : (function() {});
+    var objectEquality = arguments[2];
     this.$$watchers.push({
-      watchFn: watchFn,
-      listenerFn: listenerFn,
-      last: uniqueValue
+      watchExp: watchExp,
+      listener: listener,
+      last: uniqueValue,
+      eq: !!objectEquality
     });
+    this.$$lastDirtyWatch = null;
   },
   $$digestOnce: function() {
     var dirty,
-        newValue,
-        oldValue;
+        newValue;
     for (var $__1 = this.$$watchers[Symbol.iterator](),
         $__2; !($__2 = $__1.next()).done; ) {
       var watcher = $__2.value;
       {
-        newValue = watcher.watchFn(this);
-        if (watcher.last !== newValue) {
+        newValue = watcher.watchExp(this);
+        if (!this.$$areEqual(newValue, watcher.last, watcher.eq)) {
           this.$$lastDirtyWatch = watcher;
-          oldValue = watcher.last === uniqueValue ? newValue : watcher.last;
-          watcher.listenerFn(newValue, oldValue, this);
-          watcher.last = newValue;
+          watcher.listener(newValue, (watcher.last === uniqueValue ? newValue : watcher.last), this);
+          watcher.last = (watcher.eq ? cloneDeep(newValue) : newValue);
           dirty = true;
         } else if (this.$$lastDirtyWatch === watcher) {
           break;
@@ -48,7 +59,7 @@ var Scope = function Scope() {
     this.$$lastDirtyWatch = null;
     do {
       if (!count--) {
-        throw "10 digest iterations reached";
+        throw new Error("10 digest iterations reached");
       }
       dirty = this.$$digestOnce();
     } while (dirty);
