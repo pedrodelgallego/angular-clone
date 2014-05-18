@@ -1,7 +1,7 @@
-var chai = require('chai');
-var sinon = require('sinon');
-var _ = require('lodash');
-var expect = chai.expect;
+import Factory from "steam-factory";
+import {expect} from "chai";
+import {range, times} from "lodash";
+import {stub, spy} from "sinon";
 
 import {Scope} from "../lib/scope.js"
 
@@ -18,14 +18,14 @@ describe("Scope", () => {
 
     it("calls the listener function of a watch on first $digest", () => {
       var watchFn = () => 'wat';
-      var listenerFn = sinon.spy();
+      var listenerFn = spy();
       scope.$watch(watchFn, listenerFn);
       scope.$digest();
       expect(listenerFn.callCount).to.equal(1);
     });
 
     it("calls the watch function with the scope as the argument", () => {
-      var watchFn = sinon.spy();
+      var watchFn = spy();
       var listenerFn = () => { };
 
       scope.$watch(watchFn, listenerFn);
@@ -77,7 +77,7 @@ describe("Scope", () => {
     });
 
     it("may have watchers that omit the listener function", () => {
-      var watchFn = sinon.stub().returns('something');
+      var watchFn = stub().returns('something');
       scope.$watch(watchFn);
       scope.$digest();
       expect(watchFn.callCount).to.not.equal(0);
@@ -123,10 +123,10 @@ describe("Scope", () => {
     });
 
     it("ends the digest when the last watch is clean", function() {
-      scope.array = _.range(100);
+      scope.array = range(100);
       var watchExecutions = 0;
 
-      _.times(100, function(i) {
+      times(100, function(i) {
         scope.$watch(
           (scope) => {
             watchExecutions++;

@@ -1,9 +1,13 @@
 "use strict";
 var __moduleName = "scope_specs";
-var chai = require('chai');
-var sinon = require('sinon');
-var _ = require('lodash');
-var expect = chai.expect;
+var Factory = $traceurRuntime.assertObject(require("steam-factory")).default;
+var expect = $traceurRuntime.assertObject(require("chai")).expect;
+var $__0 = $traceurRuntime.assertObject(require("lodash")),
+    range = $__0.range,
+    times = $__0.times;
+var $__0 = $traceurRuntime.assertObject(require("sinon")),
+    stub = $__0.stub,
+    spy = $__0.spy;
 var Scope = $traceurRuntime.assertObject(require("../lib/scope.js")).Scope;
 describe("Scope", (function() {
   var scope;
@@ -19,13 +23,13 @@ describe("Scope", (function() {
       var watchFn = (function() {
         return 'wat';
       });
-      var listenerFn = sinon.spy();
+      var listenerFn = spy();
       scope.$watch(watchFn, listenerFn);
       scope.$digest();
       expect(listenerFn.callCount).to.equal(1);
     }));
     it("calls the watch function with the scope as the argument", (function() {
-      var watchFn = sinon.spy();
+      var watchFn = spy();
       var listenerFn = (function() {});
       scope.$watch(watchFn, listenerFn);
       scope.$digest();
@@ -78,7 +82,7 @@ describe("Scope", (function() {
       expect(scope.counter).to.equal(1);
     }));
     it("may have watchers that omit the listener function", (function() {
-      var watchFn = sinon.stub().returns('something');
+      var watchFn = stub().returns('something');
       scope.$watch(watchFn);
       scope.$digest();
       expect(watchFn.callCount).to.not.equal(0);
@@ -127,9 +131,9 @@ describe("Scope", (function() {
       }))).to.throw(/10 digest iterations reached/);
     }));
     it("ends the digest when the last watch is clean", function() {
-      scope.array = _.range(100);
+      scope.array = range(100);
       var watchExecutions = 0;
-      _.times(100, function(i) {
+      times(100, function(i) {
         scope.$watch((function(scope) {
           watchExecutions++;
           return scope.array[i];
