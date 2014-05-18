@@ -174,4 +174,23 @@ describe("Scope", (function() {
       expect(result).to.equal(50);
     });
   }));
+  describe("$apply", (function() {
+    it("executes $apply'ed function and starts the digest", function() {
+      scope.aValue = 'someValue';
+      scope.counter = 0;
+      var watchFn = (function(scope) {
+        return scope.aValue;
+      });
+      var listener = (function(newValue, oldValue, scope) {
+        return scope.counter++;
+      });
+      scope.$watch(watchFn, listener);
+      scope.$digest();
+      expect(scope.counter).to.equal(1);
+      scope.$apply((function(scope) {
+        return scope.aValue = 'someOtherValue';
+      }));
+      expect(scope.counter).to.equal(2);
+    });
+  }));
 }));

@@ -69,5 +69,12 @@ var Scope = function Scope() {
         $__3 = 1; $__3 < arguments.length; $__3++)
       locals[$__3 - 1] = arguments[$__3];
     return fn.apply(null, $traceurRuntime.spread([this], locals));
+  },
+  $apply: function(expr) {
+    try {
+      return this.$eval(expr);
+    } finally {
+      this.$digest();
+    }
   }
 }, {});

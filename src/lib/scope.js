@@ -70,5 +70,11 @@ export class Scope {
     return fn(this, ...locals)
   }
 
-
+  $apply(expr) {
+    try {
+      return this.$eval(expr);
+    } finally {
+      this.$digest();
+    }
+  }
 }
