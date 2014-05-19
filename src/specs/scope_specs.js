@@ -159,14 +159,14 @@ describe("Scope", () => {
   });
 
   describe("$eval", ()=>{
-    it("executes $eval'ed function and returns result", function() {
+    it("executes $eval'ed function and returns result", () => {
       scope.aValue = 42;
 
       var result = scope.$eval(scope => scope.aValue);
       expect(result).to.equal(42);
     });
 
-    it("passes the second $eval argument straight through", function() {
+    it("passes the second $eval argument straight through", () => {
       scope.aValue = 45;
       var result = scope.$eval((scope, foo, bar) => scope.aValue + foo + bar, 2, 3);
       expect(result).to.equal(50);
@@ -174,7 +174,7 @@ describe("Scope", () => {
   });
 
   describe("$apply", () => {
-    it("executes $apply'ed function and starts the digest", function() {
+    it("executes $apply'ed function and starts the digest", () => {
       scope.aValue = 'someValue';
       scope.counter = 0;
       var watchFn = scope => scope.aValue;
@@ -187,4 +187,24 @@ describe("Scope", () => {
       expect(scope.counter).to.equal(2);
     });
   });
+
+  describe("$evalAsync", () => {
+    it("executes $evalAsynced function later in the same cycle", () => {
+      scope.aValue = [1, 2, 3];
+      scope.asyncEvaluated = false;
+      scope.asyncEvaluatedImmediately = false;
+
+      scope.$watch(
+        (scope) => scope.aValue,
+        (newValue, oldValue, scope) => {
+          scope.$evalAsync(scope => scope.asyncEvaluated = true);
+          scope.asyncEvaluatedImmediately = scope.asyncEvaluated;
+        }
+      );
+
+      scope.$digest();
+      expect(scope.asyncEvaluated).to.equal(true);
+      expect(scope.asyncEvaluatedImmediately).to.equal(false);
+    });
+  })
 });

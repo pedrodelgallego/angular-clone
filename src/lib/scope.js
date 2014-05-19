@@ -9,6 +9,7 @@ export class Scope {
   constructor(){
     this.$$watchers = [];
     this.$$lastDirtyWatch = null;
+    this.$$asyncQueue = [];
   }
 
   $$areEqual(o1, o2, eq){
@@ -58,6 +59,11 @@ export class Scope {
     this.$$lastDirtyWatch = null;
 
     do {
+      while (this.$$asyncQueue.length) {
+        var asyncTask = this.$$asyncQueue.shift();
+        asyncTask.scope.$eval(asyncTask.expression);
+      }
+
       if(!count--){
         throw new Error("10 digest iterations reached");
       }
@@ -76,5 +82,9 @@ export class Scope {
     } finally {
       this.$digest();
     }
+  }
+
+  $evalAsync(expr) {
+    this.$$asyncQueue.push({scope: this, expression: expr});
   }
 }

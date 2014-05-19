@@ -13,6 +13,7 @@ var uniqueValue = (function() {});
 var Scope = function Scope() {
   this.$$watchers = [];
   this.$$lastDirtyWatch = null;
+  this.$$asyncQueue = [];
 };
 ($traceurRuntime.createClass)(Scope, {
   $$areEqual: function(o1, o2, eq) {
@@ -58,6 +59,10 @@ var Scope = function Scope() {
         count = 10;
     this.$$lastDirtyWatch = null;
     do {
+      while (this.$$asyncQueue.length) {
+        var asyncTask = this.$$asyncQueue.shift();
+        asyncTask.scope.$eval(asyncTask.expression);
+      }
       if (!count--) {
         throw new Error("10 digest iterations reached");
       }
@@ -76,5 +81,11 @@ var Scope = function Scope() {
     } finally {
       this.$digest();
     }
+  },
+  $evalAsync: function(expr) {
+    this.$$asyncQueue.push({
+      scope: this,
+      expression: expr
+    });
   }
 }, {});
