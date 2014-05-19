@@ -6,9 +6,8 @@ Object.defineProperties(exports, {
   __esModule: {value: true}
 });
 var __moduleName = "scope";
-var $__4 = $traceurRuntime.assertObject(require("lodash")),
-    isEqual = $__4.isEqual,
-    cloneDeep = $__4.cloneDeep;
+var cloneDeep = $traceurRuntime.assertObject(require("lodash")).cloneDeep;
+var equals = $traceurRuntime.assertObject(require("./angular.js")).equals;
 var uniqueValue = (function() {});
 var Scope = function Scope() {
   this.$$watchers = [];
@@ -18,7 +17,7 @@ var Scope = function Scope() {
 ($traceurRuntime.createClass)(Scope, {
   $$areEqual: function(o1, o2, eq) {
     if (eq) {
-      return isEqual(o1, o2);
+      return equals(o1, o2);
     } else {
       return o1 === o2 || (typeof o1 === 'number' && typeof o2 === 'number' && isNaN(o1) && isNaN(o2));
     }

@@ -1,8 +1,6 @@
-import Factory from "steam-factory";
-import {expect} from "chai";
-import {range, times} from "lodash";
-import {stub, spy} from "sinon";
-
+import {expect} from "chai"
+import {range, times} from "lodash"
+import {stub, spy} from "sinon"
 import {Scope} from "../lib/scope.js"
 
 describe("Scope", () => {

@@ -1,4 +1,6 @@
-import {isEqual, cloneDeep } from "lodash"
+import { cloneDeep } from "lodash"
+import { equals } from "./angular.js"
+
 
 // Functions are unique objects in JS this way new watches will always have
 // their listener functions invoked, whatever their watch functions
@@ -14,7 +16,7 @@ export class Scope {
 
   $$areEqual(o1, o2, eq){
     if (eq) {
-      return isEqual(o1, o2);
+      return equals(o1, o2);
     } else {
       return o1 === o2 ||
         (typeof o1 === 'number' && typeof o2 === 'number' &&

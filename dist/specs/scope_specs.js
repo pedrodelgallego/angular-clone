@@ -1,6 +1,5 @@
 "use strict";
 var __moduleName = "scope_specs";
-var Factory = $traceurRuntime.assertObject(require("steam-factory")).default;
 var expect = $traceurRuntime.assertObject(require("chai")).expect;
 var $__0 = $traceurRuntime.assertObject(require("lodash")),
     range = $__0.range,
