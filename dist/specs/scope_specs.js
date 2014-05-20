@@ -213,5 +213,19 @@ describe("Scope", (function() {
       expect(scope.asyncEvaluated).to.equal(true);
       expect(scope.asyncEvaluatedImmediately).to.equal(false);
     }));
+    it("executes $evalAsynced functions added by watch functions", (function() {
+      scope.aValue = [1, 2, 3];
+      scope.asyncEvaluated = false;
+      scope.$watch((function(scope) {
+        if (!scope.asyncEvaluated) {
+          scope.$evalAsync(function(scope) {
+            scope.asyncEvaluated = true;
+          });
+        }
+        return scope.aValue;
+      }), (function(newValue, oldValue, scope) {}));
+      scope.$digest();
+      expect(scope.asyncEvaluated).to.equal(true);
+    }));
   }));
 }));
