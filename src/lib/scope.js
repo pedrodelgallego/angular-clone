@@ -66,12 +66,12 @@ export class Scope {
         asyncTask.scope.$eval(asyncTask.expression);
       }
 
-      if(!count--){
+      dirty = this.$$digestOnce();
+
+      if ((dirty || this.$$asyncQueue.length) && !(count--)) {
         throw new Error("10 digest iterations reached");
       }
-
-      dirty = this.$$digestOnce();
-    } while(dirty);
+    } while(dirty || this.$$asyncQueue.length);
   }
 
   $eval(fn, ...locals){

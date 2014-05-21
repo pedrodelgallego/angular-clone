@@ -62,11 +62,11 @@ var Scope = function Scope() {
         var asyncTask = this.$$asyncQueue.shift();
         asyncTask.scope.$eval(asyncTask.expression);
       }
-      if (!count--) {
+      dirty = this.$$digestOnce();
+      if ((dirty || this.$$asyncQueue.length) && !(count--)) {
         throw new Error("10 digest iterations reached");
       }
-      dirty = this.$$digestOnce();
-    } while (dirty);
+    } while (dirty || this.$$asyncQueue.length);
   },
   $eval: function(fn) {
     for (var locals = [],

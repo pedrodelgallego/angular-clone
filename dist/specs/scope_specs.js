@@ -227,5 +227,29 @@ describe("Scope", (function() {
       scope.$digest();
       expect(scope.asyncEvaluated).to.equal(true);
     }));
+    it("executes $evalAsynced functions even when not dirty", function() {
+      scope.aValue = [1, 2, 3];
+      scope.asyncEvaluatedTimes = 0;
+      scope.$watch(function(scope) {
+        if (scope.asyncEvaluatedTimes < 2) {
+          scope.$evalAsync(function(scope) {
+            scope.asyncEvaluatedTimes++;
+          });
+        }
+        return scope.aValue;
+      }, function(newValue, oldValue, scope) {});
+      scope.$digest();
+      expect(scope.asyncEvaluatedTimes).to.equal(2);
+    });
+    it("eventually halts $evalAsyncs added by watches", function() {
+      scope.aValue = [1, 2, 3];
+      scope.$watch(function(scope) {
+        scope.$evalAsync(function(scope) {});
+        return scope.aValue;
+      }, function(newValue, oldValue, scope) {});
+      expect((function() {
+        return scope.$digest();
+      })).to.throw(/10 digest iterations reached/);
+    });
   }));
 }));

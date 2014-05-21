@@ -11,7 +11,7 @@ var compareArrays = (a1, a2) => {
     return true;
   }
   return false;
-}
+};
 
 var equals = (o1, o2) => {
   var t1 = typeof o1,
