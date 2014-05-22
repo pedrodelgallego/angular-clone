@@ -251,5 +251,24 @@ describe("Scope", () => {
       );
       expect(() => scope.$digest() ).to.throw(/10 digest iterations reached/);
     });
+
+
+    it("has a $$phase field whose value is the current digest phase", () => {
+      scope.aValue = [1, 2, 3];
+      scope.phaseInWatchFunction = undefined;
+      scope.phaseInListenerFunction = undefined;
+      scope.phaseInApplyFunction = undefined;
+      var watchFn = (scope) => {
+        scope.phaseInWatchFunction = scope.$$phase;
+        return scope.aValue;
+      };
+      var listener = (newValue, oldValue, scope) => scope.phaseInListenerFunction = scope.$$phase
+
+      scope.$watch(watchFn, listener);
+      scope.$apply((scope) => scope.phaseInApplyFunction = scope.$$phase);
+      expect(scope.phaseInWatchFunction).to.be.equal('$digest');
+      expect(scope.phaseInListenerFunction).to.be.equal('$digest');
+      expect(scope.phaseInApplyFunction).to.be.equal('$apply');
+    });
   });
 });

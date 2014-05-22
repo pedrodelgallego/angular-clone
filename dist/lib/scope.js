@@ -13,6 +13,7 @@ var Scope = function Scope() {
   this.$$watchers = [];
   this.$$lastDirtyWatch = null;
   this.$$asyncQueue = [];
+  this.$$phase = null;
 };
 ($traceurRuntime.createClass)(Scope, {
   $$areEqual: function(o1, o2, eq) {
@@ -57,6 +58,7 @@ var Scope = function Scope() {
     var dirty,
         count = 10;
     this.$$lastDirtyWatch = null;
+    this.$beginPhase("$digest");
     do {
       while (this.$$asyncQueue.length) {
         var asyncTask = this.$$asyncQueue.shift();
@@ -67,6 +69,7 @@ var Scope = function Scope() {
         throw new Error("10 digest iterations reached");
       }
     } while (dirty || this.$$asyncQueue.length);
+    this.$clearPhase();
   },
   $eval: function(fn) {
     for (var locals = [],
@@ -76,8 +79,10 @@ var Scope = function Scope() {
   },
   $apply: function(expr) {
     try {
+      this.$beginPhase("$apply");
       return this.$eval(expr);
     } finally {
+      this.$clearPhase();
       this.$digest();
     }
   },
@@ -86,5 +91,14 @@ var Scope = function Scope() {
       scope: this,
       expression: expr
     });
+  },
+  $beginPhase: function(phase) {
+    if (this.$$phase) {
+      throw this.$$phase + ' already in progress.';
+    }
+    this.$$phase = phase;
+  },
+  $clearPhase: function(phase) {
+    this.$$phase = null;
   }
 }, {});

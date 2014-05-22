@@ -12,6 +12,7 @@ export class Scope {
     this.$$watchers = [];
     this.$$lastDirtyWatch = null;
     this.$$asyncQueue = [];
+    this.$$phase = null;
   }
 
   $$areEqual(o1, o2, eq){
@@ -59,6 +60,7 @@ export class Scope {
   $digest() {
     var dirty, count = 10;
     this.$$lastDirtyWatch = null;
+    this.$beginPhase("$digest");
 
     do {
       while (this.$$asyncQueue.length) {
@@ -72,6 +74,7 @@ export class Scope {
         throw new Error("10 digest iterations reached");
       }
     } while(dirty || this.$$asyncQueue.length);
+    this.$clearPhase();
   }
 
   $eval(fn, ...locals){
@@ -80,13 +83,26 @@ export class Scope {
 
   $apply(expr) {
     try {
+      this.$beginPhase("$apply");
       return this.$eval(expr);
     } finally {
+      this.$clearPhase();
       this.$digest();
     }
   }
 
   $evalAsync(expr) {
     this.$$asyncQueue.push({scope: this, expression: expr});
+  }
+
+  $beginPhase(phase){
+    if(this.$$phase){
+      throw this.$$phase + ' already in progress.';
+    }
+    this.$$phase = phase;
+  }
+
+  $clearPhase(phase){
+    this.$$phase = null;
   }
 }
