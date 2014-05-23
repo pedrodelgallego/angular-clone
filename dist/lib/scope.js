@@ -37,9 +37,9 @@ var Scope = function Scope() {
   $$digestOnce: function() {
     var dirty,
         newValue;
-    for (var $__1 = this.$$watchers[Symbol.iterator](),
-        $__2; !($__2 = $__1.next()).done; ) {
-      var watcher = $__2.value;
+    for (var $__2 = this.$$watchers[Symbol.iterator](),
+        $__3; !($__3 = $__2.next()).done; ) {
+      var watcher = $__3.value;
       {
         newValue = watcher.watchExp(this);
         if (!this.$$areEqual(newValue, watcher.last, watcher.eq)) {
@@ -73,8 +73,8 @@ var Scope = function Scope() {
   },
   $eval: function(fn) {
     for (var locals = [],
-        $__3 = 1; $__3 < arguments.length; $__3++)
-      locals[$__3 - 1] = arguments[$__3];
+        $__4 = 1; $__4 < arguments.length; $__4++)
+      locals[$__4 - 1] = arguments[$__4];
     return fn.apply(null, $traceurRuntime.spread([this], locals));
   },
   $apply: function(expr) {
@@ -87,6 +87,14 @@ var Scope = function Scope() {
     }
   },
   $evalAsync: function(expr) {
+    var $__0 = this;
+    if (!this.$$phase && !this.$$asyncQueue.length) {
+      setTimeout((function() {
+        if ($__0.$$asyncQueue.length) {
+          $__0.$digest();
+        }
+      }), 0);
+    }
     this.$$asyncQueue.push({
       scope: this,
       expression: expr

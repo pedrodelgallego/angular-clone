@@ -92,6 +92,13 @@ export class Scope {
   }
 
   $evalAsync(expr) {
+    if (!this.$$phase && !this.$$asyncQueue.length) {
+      setTimeout(() => {
+        if (this.$$asyncQueue.length) {
+          this.$digest();
+        }
+      }, 0);
+    }
     this.$$asyncQueue.push({scope: this, expression: expr});
   }
 

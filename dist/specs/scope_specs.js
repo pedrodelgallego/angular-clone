@@ -271,5 +271,20 @@ describe("Scope", (function() {
       expect(scope.phaseInListenerFunction).to.be.equal('$digest');
       expect(scope.phaseInApplyFunction).to.be.equal('$apply');
     }));
+    it("schedules a digest in $evalAsync", (function(done) {
+      scope.aValue = "abc";
+      scope.counter = 0;
+      scope.$watch((function(scope) {
+        return scope.aValue;
+      }), (function(newValue, oldValue, scope) {
+        return scope.counter++;
+      }));
+      scope.$evalAsync((function(scope) {}));
+      expect(scope.counter).to.equal(0);
+      setTimeout((function() {
+        expect(scope.counter).to.equal(1);
+        done();
+      }), 4);
+    }));
   }));
 }));

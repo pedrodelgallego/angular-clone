@@ -252,7 +252,6 @@ describe("Scope", () => {
       expect(() => scope.$digest() ).to.throw(/10 digest iterations reached/);
     });
 
-
     it("has a $$phase field whose value is the current digest phase", () => {
       scope.aValue = [1, 2, 3];
       scope.phaseInWatchFunction = undefined;
@@ -270,5 +269,23 @@ describe("Scope", () => {
       expect(scope.phaseInListenerFunction).to.be.equal('$digest');
       expect(scope.phaseInApplyFunction).to.be.equal('$apply');
     });
+
+    it("schedules a digest in $evalAsync", (done) => {
+      scope.aValue = "abc";
+      scope.counter = 0;
+      scope.$watch(
+        (scope) => scope.aValue,
+        (newValue, oldValue, scope) => scope.counter++
+      );
+
+      scope.$evalAsync((scope) => {});
+      expect(scope.counter).to.equal(0);
+
+      setTimeout(() => {
+        expect(scope.counter).to.equal(1);
+        done();
+      }, 4);
+    });
+
   });
 });
