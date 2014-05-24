@@ -13,6 +13,7 @@ var Scope = function Scope() {
   this.$$watchers = [];
   this.$$lastDirtyWatch = null;
   this.$$asyncQueue = [];
+  this.$$postDigestQueue = [];
   this.$$phase = null;
 };
 ($traceurRuntime.createClass)(Scope, {
@@ -69,6 +70,14 @@ var Scope = function Scope() {
         throw new Error("10 digest iterations reached");
       }
     } while (dirty || this.$$asyncQueue.length);
+    for (var $__2 = this.$$postDigestQueue[Symbol.iterator](),
+        $__3; !($__3 = $__2.next()).done; ) {
+      var fn = $__3.value;
+      {
+        fn();
+      }
+    }
+    this.$$postDigestQueue = [];
     this.$clearPhase();
   },
   $eval: function(fn) {
@@ -99,6 +108,9 @@ var Scope = function Scope() {
       scope: this,
       expression: expr
     });
+  },
+  $$postDigest: function(fn) {
+    this.$$postDigestQueue.push(fn);
   },
   $beginPhase: function(phase) {
     if (this.$$phase) {

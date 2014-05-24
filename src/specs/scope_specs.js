@@ -119,11 +119,11 @@ describe("Scope", () => {
       expect((() => { scope.$digest(); })).to.throw(/10 digest iterations reached/);
     });
 
-    it("ends the digest when the last watch is clean", function() {
+    it("ends the digest when the last watch is clean", () => {
       scope.array = range(100);
       var watchExecutions = 0;
 
-      times(100, function(i) {
+      times(100, (i) => {
         scope.$watch(
           (scope) => {
             watchExecutions++;
@@ -210,9 +210,7 @@ describe("Scope", () => {
       scope.$watch(
         (scope) => {
           if (!scope.asyncEvaluated) {
-            scope.$evalAsync(function(scope) {
-              scope.asyncEvaluated = true;
-            });
+            scope.$evalAsync((scope) => scope.asyncEvaluated = true);
           }
           return scope.aValue;
         },
@@ -222,32 +220,30 @@ describe("Scope", () => {
       expect(scope.asyncEvaluated).to.equal(true);
     });
 
-    it("executes $evalAsynced functions even when not dirty", function() {
+    it("executes $evalAsynced functions even when not dirty", () => {
       scope.aValue = [1, 2, 3];
       scope.asyncEvaluatedTimes = 0;
       scope.$watch(
-        function(scope) {
+        (scope) => {
           if (scope.asyncEvaluatedTimes < 2) {
-            scope.$evalAsync(function(scope) {
-              scope.asyncEvaluatedTimes++;
-            });
+            scope.$evalAsync((scope) => scope.asyncEvaluatedTimes++);
           }
           return scope.aValue;
         },
-        function(newValue, oldValue, scope) { }
+        () => { }
       );
       scope.$digest();
       expect(scope.asyncEvaluatedTimes).to.equal(2);
     });
 
-    it("eventually halts $evalAsyncs added by watches", function() {
+    it("eventually halts $evalAsyncs added by watches", () => {
       scope.aValue = [1, 2, 3];
       scope.$watch(
-        function(scope) {
-          scope.$evalAsync(function(scope) { });
+        (scope) => {
+          scope.$evalAsync(() => { });
           return scope.aValue;
         },
-        function(newValue, oldValue, scope) { }
+        () => { }
       );
       expect(() => scope.$digest() ).to.throw(/10 digest iterations reached/);
     });
@@ -287,5 +283,27 @@ describe("Scope", () => {
       }, 4);
     });
 
+    it("runs a $$postDigest function after each digest", () => {
+      scope.counter = 0;
+      scope.$$postDigest(() => scope.counter++);
+      expect(scope.counter).to.be.equal(0);
+      scope.$digest();
+      expect(scope.counter).to.be.equal(1);
+      scope.$digest();
+      expect(scope.counter).to.be.equal(1);
+    });
+
+    it("does not include $$postDigest in the digest", () => {
+      scope.aValue = 'original value';
+      scope.$$postDigest(() =>  scope.aValue = 'changed value');
+      scope.$watch(
+        (scope) => scope.aValue,
+        (newValue, oldValue, scope) => scope.watchedValue = newValue
+      );
+      scope.$digest();
+      expect(scope.watchedValue).to.be.equal('original value');
+      scope.$digest();
+      expect(scope.watchedValue).to.be.equal('changed value');
+    });
   });
 });

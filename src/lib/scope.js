@@ -12,6 +12,7 @@ export class Scope {
     this.$$watchers = [];
     this.$$lastDirtyWatch = null;
     this.$$asyncQueue = [];
+    this.$$postDigestQueue = [];
     this.$$phase = null;
   }
 
@@ -74,6 +75,13 @@ export class Scope {
         throw new Error("10 digest iterations reached");
       }
     } while(dirty || this.$$asyncQueue.length);
+
+    for (var fn of this.$$postDigestQueue){
+      fn();
+    }
+
+    this.$$postDigestQueue = [];
+
     this.$clearPhase();
   }
 
@@ -100,6 +108,10 @@ export class Scope {
       }, 0);
     }
     this.$$asyncQueue.push({scope: this, expression: expr});
+  }
+
+  $$postDigest(fn){
+    this.$$postDigestQueue.push(fn);
   }
 
   $beginPhase(phase){
