@@ -3,6 +3,12 @@ import {range, times} from "lodash"
 import {stub, spy} from "sinon"
 import {Scope} from "../lib/scope.js"
 
+var throwError = () => {throw 'Error'};
+
+var noop = () => { };
+
+var increaseCounter = (newValue, oldValue, scope) => scope.counter++
+
 describe("Scope", () => {
   var scope;
   beforeEach(() => { scope = new Scope(); });
@@ -23,9 +29,7 @@ describe("Scope", () => {
 
     it("calls the watch function with the scope as the argument", () => {
       var watchFn = spy();
-      var listenerFn = () => { };
-
-      scope.$watch(watchFn, listenerFn);
+      scope.$watch(watchFn, noop);
       scope.$digest();
       expect(watchFn.calledWith(scope)).to.equal(true);
     });
@@ -36,8 +40,7 @@ describe("Scope", () => {
       expect(scope.counter).to.equal(0);
 
       var watchFn  = scope => scope.someValue;
-      var listenerFn = (newValue, oldValue, scope) => scope.counter++;
-      scope.$watch(watchFn, listenerFn);
+      scope.$watch(watchFn, increaseCounter);
 
       expect(scope.counter).to.equal(0);
 
@@ -67,8 +70,7 @@ describe("Scope", () => {
     it("calls listener when watch value is first undefined", () => {
       scope.counter = 0;
       var watchFn    = scope => scope.someValue;
-      var listenerFn = (newValue, oldValue, scope) => scope.counter++;
-      scope.$watch(watchFn, listenerFn);
+      scope.$watch(watchFn, increaseCounter);
       scope.$digest();
       expect(scope.counter).to.equal(1);
     });
@@ -129,7 +131,7 @@ describe("Scope", () => {
             watchExecutions++;
             return scope.array[i];
           },
-          () => {}
+          noop
         );
       });
 
@@ -144,8 +146,7 @@ describe("Scope", () => {
       scope.aValue = [1, 2, 3];
       scope.counter = 0;
       var watchFn = scope => scope.aValue;
-      var listenerFn = (newValue, oldValue, scope) => scope.counter++;
-      scope.$watch(watchFn, listenerFn, true);
+      scope.$watch(watchFn, increaseCounter, true);
 
       scope.$digest();
       expect(scope.counter).to.equal(1);
@@ -175,8 +176,7 @@ describe("Scope", () => {
       scope.aValue = 'someValue';
       scope.counter = 0;
       var watchFn = scope => scope.aValue;
-      var listener = (newValue, oldValue, scope) => scope.counter++
-      scope.$watch(watchFn,listener);
+      scope.$watch(watchFn, increaseCounter);
 
       scope.$digest();
       expect(scope.counter).to.equal(1);
@@ -230,7 +230,7 @@ describe("Scope", () => {
           }
           return scope.aValue;
         },
-        () => { }
+        noop
       );
       scope.$digest();
       expect(scope.asyncEvaluatedTimes).to.equal(2);
@@ -240,14 +240,16 @@ describe("Scope", () => {
       scope.aValue = [1, 2, 3];
       scope.$watch(
         (scope) => {
-          scope.$evalAsync(() => { });
+          scope.$evalAsync(noop);
           return scope.aValue;
         },
-        () => { }
+        noop
       );
       expect(() => scope.$digest() ).to.throw(/10 digest iterations reached/);
     });
+  });
 
+  describe("$$postDigest", () => {
     it("has a $$phase field whose value is the current digest phase", () => {
       scope.aValue = [1, 2, 3];
       scope.phaseInWatchFunction = undefined;
@@ -269,10 +271,7 @@ describe("Scope", () => {
     it("schedules a digest in $evalAsync", (done) => {
       scope.aValue = "abc";
       scope.counter = 0;
-      scope.$watch(
-        (scope) => scope.aValue,
-        (newValue, oldValue, scope) => scope.counter++
-      );
+      scope.$watch((scope) => scope.aValue, () => scope.counter++);
 
       scope.$evalAsync((scope) => {});
       expect(scope.counter).to.equal(0);
@@ -306,4 +305,24 @@ describe("Scope", () => {
       expect(scope.watchedValue).to.be.equal('changed value');
     });
   });
+
+  describe("exception handlers", () => {
+    it("catches exceptions in watch functions and continues", () => {
+      scope.aValue = 'abc';
+      scope.counter = 0;
+      scope.$watch(throwError , noop);
+      scope.$watch((scope) => scope.aValue, increaseCounter);
+      scope.$digest();
+      expect(scope.counter).to.be.equal(1);
+    });
+
+    it("catches exceptions in listener functions and continues", function() {
+      scope.aValue = 'abc';
+      scope.counter = 0;
+      scope.$watch(noop, throwError);
+      scope.$watch(noop, increaseCounter);
+      scope.$digest();
+      expect(scope.counter).to.be.equal(1);
+    });
+  })
 });

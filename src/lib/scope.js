@@ -38,21 +38,26 @@ export class Scope {
   }
 
   $$digestOnce(){
-    var dirty, newValue;
+    var dirty, newValue, oldValue;
     for (var watcher of this.$$watchers){
-      newValue = watcher.watchExp(this);
-      if (!this.$$areEqual(newValue, watcher.last, watcher.eq)) {
-        this.$$lastDirtyWatch = watcher;
+      try {
+        newValue = watcher.watchExp(this);
+        if (!this.$$areEqual(newValue, watcher.last, watcher.eq)) {
+          this.$$lastDirtyWatch = watcher;
 
-        // if the last value is equal to the uniqueValue, them we
-        // should not leak the uniqueValue to the method, instead pass
-        // the new value to the scope as the last iteration
-        watcher.listener(newValue, (watcher.last === uniqueValue? newValue : watcher.last), this);
+          // if the last value is equal to the uniqueValue, them we
+          // should not leak the uniqueValue to the method, instead pass
+          // the new value to the scope as the last iteration
+          oldValue = (watcher.last === uniqueValue? newValue : watcher.last);
+          watcher.listener(newValue, oldValue, this);
 
-        watcher.last = (watcher.eq ? cloneDeep(newValue) : newValue);
-        dirty = true;
-      } else if (this.$$lastDirtyWatch === watcher) {
-        break;
+          watcher.last = (watcher.eq ? cloneDeep(newValue) : newValue);
+          dirty = true;
+        } else if (this.$$lastDirtyWatch === watcher) {
+          break;
+        }
+      } catch (e) {
+        console.error(e);
       }
     }
     return dirty;

@@ -8,6 +8,13 @@ var $__0 = $traceurRuntime.assertObject(require("sinon")),
     stub = $__0.stub,
     spy = $__0.spy;
 var Scope = $traceurRuntime.assertObject(require("../lib/scope.js")).Scope;
+var throwError = (function() {
+  throw 'Error';
+});
+var noop = (function() {});
+var increaseCounter = (function(newValue, oldValue, scope) {
+  return scope.counter++;
+});
 describe("Scope", (function() {
   var scope;
   beforeEach((function() {
@@ -29,8 +36,7 @@ describe("Scope", (function() {
     }));
     it("calls the watch function with the scope as the argument", (function() {
       var watchFn = spy();
-      var listenerFn = (function() {});
-      scope.$watch(watchFn, listenerFn);
+      scope.$watch(watchFn, noop);
       scope.$digest();
       expect(watchFn.calledWith(scope)).to.equal(true);
     }));
@@ -41,10 +47,7 @@ describe("Scope", (function() {
       var watchFn = (function(scope) {
         return scope.someValue;
       });
-      var listenerFn = (function(newValue, oldValue, scope) {
-        return scope.counter++;
-      });
-      scope.$watch(watchFn, listenerFn);
+      scope.$watch(watchFn, increaseCounter);
       expect(scope.counter).to.equal(0);
       scope.$digest();
       expect(scope.counter).to.equal(1);
@@ -73,10 +76,7 @@ describe("Scope", (function() {
       var watchFn = (function(scope) {
         return scope.someValue;
       });
-      var listenerFn = (function(newValue, oldValue, scope) {
-        return scope.counter++;
-      });
-      scope.$watch(watchFn, listenerFn);
+      scope.$watch(watchFn, increaseCounter);
       scope.$digest();
       expect(scope.counter).to.equal(1);
     }));
@@ -136,7 +136,7 @@ describe("Scope", (function() {
         scope.$watch((function(scope) {
           watchExecutions++;
           return scope.array[i];
-        }), (function() {}));
+        }), noop);
       }));
       scope.$digest();
       expect(watchExecutions).to.equal(200);
@@ -150,10 +150,7 @@ describe("Scope", (function() {
       var watchFn = (function(scope) {
         return scope.aValue;
       });
-      var listenerFn = (function(newValue, oldValue, scope) {
-        return scope.counter++;
-      });
-      scope.$watch(watchFn, listenerFn, true);
+      scope.$watch(watchFn, increaseCounter, true);
       scope.$digest();
       expect(scope.counter).to.equal(1);
       scope.aValue.push(4);
@@ -184,10 +181,7 @@ describe("Scope", (function() {
       var watchFn = (function(scope) {
         return scope.aValue;
       });
-      var listener = (function(newValue, oldValue, scope) {
-        return scope.counter++;
-      });
-      scope.$watch(watchFn, listener);
+      scope.$watch(watchFn, increaseCounter);
       scope.$digest();
       expect(scope.counter).to.equal(1);
       scope.$apply((function(scope) {
@@ -237,20 +231,22 @@ describe("Scope", (function() {
           }));
         }
         return scope.aValue;
-      }), (function() {}));
+      }), noop);
       scope.$digest();
       expect(scope.asyncEvaluatedTimes).to.equal(2);
     }));
     it("eventually halts $evalAsyncs added by watches", (function() {
       scope.aValue = [1, 2, 3];
       scope.$watch((function(scope) {
-        scope.$evalAsync((function() {}));
+        scope.$evalAsync(noop);
         return scope.aValue;
-      }), (function() {}));
+      }), noop);
       expect((function() {
         return scope.$digest();
       })).to.throw(/10 digest iterations reached/);
     }));
+  }));
+  describe("$$postDigest", (function() {
     it("has a $$phase field whose value is the current digest phase", (function() {
       scope.aValue = [1, 2, 3];
       scope.phaseInWatchFunction = undefined;
@@ -276,7 +272,7 @@ describe("Scope", (function() {
       scope.counter = 0;
       scope.$watch((function(scope) {
         return scope.aValue;
-      }), (function(newValue, oldValue, scope) {
+      }), (function() {
         return scope.counter++;
       }));
       scope.$evalAsync((function(scope) {}));
@@ -312,5 +308,25 @@ describe("Scope", (function() {
       scope.$digest();
       expect(scope.watchedValue).to.be.equal('changed value');
     }));
+  }));
+  describe("exception handlers", (function() {
+    it("catches exceptions in watch functions and continues", (function() {
+      scope.aValue = 'abc';
+      scope.counter = 0;
+      scope.$watch(throwError, noop);
+      scope.$watch((function(scope) {
+        return scope.aValue;
+      }), increaseCounter);
+      scope.$digest();
+      expect(scope.counter).to.be.equal(1);
+    }));
+    it("catches exceptions in listener functions and continues", function() {
+      scope.aValue = 'abc';
+      scope.counter = 0;
+      scope.$watch(noop, throwError);
+      scope.$watch(noop, increaseCounter);
+      scope.$digest();
+      expect(scope.counter).to.be.equal(1);
+    });
   }));
 }));

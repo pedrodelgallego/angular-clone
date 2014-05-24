@@ -37,19 +37,25 @@ var Scope = function Scope() {
   },
   $$digestOnce: function() {
     var dirty,
-        newValue;
+        newValue,
+        oldValue;
     for (var $__2 = this.$$watchers[Symbol.iterator](),
         $__3; !($__3 = $__2.next()).done; ) {
       var watcher = $__3.value;
       {
-        newValue = watcher.watchExp(this);
-        if (!this.$$areEqual(newValue, watcher.last, watcher.eq)) {
-          this.$$lastDirtyWatch = watcher;
-          watcher.listener(newValue, (watcher.last === uniqueValue ? newValue : watcher.last), this);
-          watcher.last = (watcher.eq ? cloneDeep(newValue) : newValue);
-          dirty = true;
-        } else if (this.$$lastDirtyWatch === watcher) {
-          break;
+        try {
+          newValue = watcher.watchExp(this);
+          if (!this.$$areEqual(newValue, watcher.last, watcher.eq)) {
+            this.$$lastDirtyWatch = watcher;
+            oldValue = (watcher.last === uniqueValue ? newValue : watcher.last);
+            watcher.listener(newValue, oldValue, this);
+            watcher.last = (watcher.eq ? cloneDeep(newValue) : newValue);
+            dirty = true;
+          } else if (this.$$lastDirtyWatch === watcher) {
+            break;
+          }
+        } catch (e) {
+          console.error(e);
         }
       }
     }
