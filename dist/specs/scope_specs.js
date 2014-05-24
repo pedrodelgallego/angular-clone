@@ -328,5 +328,26 @@ describe("Scope", (function() {
       scope.$digest();
       expect(scope.counter).to.be.equal(1);
     });
+    it("catches exceptions in $evalAsync", function(done) {
+      scope.aValue = 'abc';
+      scope.counter = 0;
+      scope.$watch((function(scope) {
+        return scope.aValue;
+      }), increaseCounter);
+      scope.$evalAsync(throwError);
+      setTimeout(function() {
+        expect(scope.counter).to.be.equal(1);
+        done();
+      }, 50);
+    });
+    it("catches exceptions in $$postDigest", function() {
+      var didRun = false;
+      scope.$$postDigest(throwError);
+      scope.$$postDigest((function() {
+        return didRun = true;
+      }));
+      scope.$digest();
+      expect(didRun).to.be.equal(true);
+    });
   }));
 }));

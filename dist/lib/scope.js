@@ -54,9 +54,7 @@ var Scope = function Scope() {
           } else if (this.$$lastDirtyWatch === watcher) {
             break;
           }
-        } catch (e) {
-          console.error(e);
-        }
+        } catch (e) {}
       }
     }
     return dirty;
@@ -68,8 +66,12 @@ var Scope = function Scope() {
     this.$beginPhase("$digest");
     do {
       while (this.$$asyncQueue.length) {
-        var asyncTask = this.$$asyncQueue.shift();
-        asyncTask.scope.$eval(asyncTask.expression);
+        try {
+          var asyncTask = this.$$asyncQueue.shift();
+          asyncTask.scope.$eval(asyncTask.expression);
+        } catch (e) {
+          console.error(e);
+        }
       }
       dirty = this.$$digestOnce();
       if ((dirty || this.$$asyncQueue.length) && !(count--)) {
@@ -80,7 +82,9 @@ var Scope = function Scope() {
         $__3; !($__3 = $__2.next()).done; ) {
       var fn = $__3.value;
       {
-        fn();
+        try {
+          fn();
+        } catch (e) {}
       }
     }
     this.$$postDigestQueue = [];
