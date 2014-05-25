@@ -28,22 +28,27 @@ describe("angular loaders", () => {
       expect(window.angular.module).to.not.be.undefined
     });
 
-    it('exposes the angular module function just once', function() {
+    it('exposes the angular module function just once', () => {
       var module = window.angular.module;
       setupModuleLoader(window);
       expect(window.angular.module).to.be.equal(module);
     });
 
-    it('allows registering a module', function() {
+    it('allows registering a module', () => {
       var myModule = window.angular.module('myModule', []);
       expect(myModule).to.not.be.undefined;
       expect(myModule.name).to.be.equal('myModule');
     });
 
-    it('replaces a module when registered with same name again', function() {
+    it('replaces a module when registered with same name again', () => {
       var myModule = window.angular.module('myModule', []);
       var myNewModule = window.angular.module('myModule', []);
       expect(myNewModule).not.equal(myModule);
+    });
+
+    it('attaches the requires array to the registered module', () => {
+      var myModule = window.angular.module('myModule', ['myOtherModule']);
+      expect(myModule.requires).to.be.eql(['myOtherModule']);
     });
   });
 });
