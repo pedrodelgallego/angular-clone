@@ -1,5 +1,5 @@
 import {expect} from "chai"
-import {equals, setupModuleLoader} from "../lib/angular.js"
+import {equals} from "../lib/angular.js"
 
 describe('equals', function() {
   it('should return true if same object', function() {
@@ -68,25 +68,3 @@ describe('equals', function() {
     expect(equals([], {})).to.equal(false);
   });
 })
-
-
-describe("anular global object", () => {
-  var window;
-  beforeEach(() => {
-    window = {};
-  });
-
-  describe('setupModuleLoader', () => {
-    it('exposes angular on the window', () => {
-      setupModuleLoader(window);
-      expect(window.angular).not.equal(undefined);
-    });
-
-    it('creates angular just once', () => {
-      setupModuleLoader(window);
-      var ng = window.angular;
-      setupModuleLoader(window);
-      expect(window.angular).to.be.equal(ng);
-    });
-  });
-});

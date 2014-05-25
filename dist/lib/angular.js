@@ -3,12 +3,10 @@ Object.defineProperties(exports, {
   equals: {get: function() {
       return equals;
     }},
-  setupModuleLoader: {get: function() {
-      return setupModuleLoader;
-    }},
   __esModule: {value: true}
 });
 var __moduleName = "angular";
+var setupModuleLoader = $traceurRuntime.assertObject(require("./loader.js")).setupModuleLoader;
 var isFunction = (function(fn) {
   return typeof fn === "function";
 });
@@ -66,10 +64,4 @@ var equals = (function(o1, o2) {
   }
   return false;
 });
-function setupModuleLoader(window) {
-  var ensure = function(obj, name, factory) {
-    return obj[name] || (obj[name] = factory());
-  };
-  var angular = ensure(window, 'angular', Object);
-}
 ;
