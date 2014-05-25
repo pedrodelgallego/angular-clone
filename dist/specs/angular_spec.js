@@ -1,13 +1,6 @@
 "use strict";
 var __moduleName = "angular_spec";
 var expect = $traceurRuntime.assertObject(require("chai")).expect;
-var $__0 = $traceurRuntime.assertObject(require("lodash")),
-    range = $__0.range,
-    times = $__0.times,
-    isEqual = $__0.isEqual;
-var $__0 = $traceurRuntime.assertObject(require("sinon")),
-    stub = $__0.stub,
-    spy = $__0.spy;
 var $__0 = $traceurRuntime.assertObject(require("../lib/angular.js")),
     equals = $__0.equals,
     setupModuleLoader = $__0.setupModuleLoader;

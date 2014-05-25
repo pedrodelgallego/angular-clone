@@ -1,6 +1,4 @@
 import {expect} from "chai"
-import {range, times, isEqual} from "lodash"
-import {stub, spy} from "sinon"
 import {equals, setupModuleLoader} from "../lib/angular.js"
 
 describe('equals', function() {
