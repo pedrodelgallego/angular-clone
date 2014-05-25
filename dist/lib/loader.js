@@ -14,6 +14,9 @@ function createModule(name, requires) {
       requires: requires
     };
   }
+  if (!modules[name]) {
+    throw new Error(("module " + name + " has not been registered"));
+  }
   return modules[name];
 }
 function setupModuleLoader(window) {

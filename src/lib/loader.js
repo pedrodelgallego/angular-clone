@@ -4,6 +4,11 @@ function createModule(name, requires) {
   if (requires) {
     modules[name] = { name, requires };
   }
+
+  if (!modules[name]){
+    throw new Error(`module ${ name } has not been registered`);
+  }
+
   return modules[name];
 }
 

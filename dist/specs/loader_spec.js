@@ -54,5 +54,10 @@ describe("angular loaders", (function() {
       expect(gotModule).to.not.be.undefined;
       expect(gotModule).to.be.equal(myModule);
     }));
+    it('throws when trying to get a nonexisting module', function() {
+      expect(function() {
+        window.angular.module('tomato');
+      }).to.throw();
+    });
   }));
 }));
