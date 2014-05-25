@@ -3,6 +3,9 @@ Object.defineProperties(exports, {
   equals: {get: function() {
       return equals;
     }},
+  setupModuleLoader: {get: function() {
+      return setupModuleLoader;
+    }},
   __esModule: {value: true}
 });
 var __moduleName = "angular";
@@ -12,6 +15,10 @@ var isFunction = (function(fn) {
 var isArray = (function(array) {
   return Object.prototype.toString.call(array) === '[object Array]';
 });
+if (require) {
+  global.hola = 'hola';
+  global.window = {};
+}
 var compareArrays = (function(a1, a2) {
   var length,
       key;
@@ -59,4 +66,10 @@ var equals = (function(o1, o2) {
   }
   return false;
 });
+function setupModuleLoader(window) {
+  var ensure = function(obj, name, factory) {
+    return obj[name] || (obj[name] = factory());
+  };
+  var angular = ensure(window, 'angular', Object);
+}
 ;

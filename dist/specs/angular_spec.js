@@ -3,11 +3,14 @@ var __moduleName = "angular_spec";
 var expect = $traceurRuntime.assertObject(require("chai")).expect;
 var $__0 = $traceurRuntime.assertObject(require("lodash")),
     range = $__0.range,
-    times = $__0.times;
+    times = $__0.times,
+    isEqual = $__0.isEqual;
 var $__0 = $traceurRuntime.assertObject(require("sinon")),
     stub = $__0.stub,
     spy = $__0.spy;
-var equals = $traceurRuntime.assertObject(require("../lib/angular.js")).equals;
+var $__0 = $traceurRuntime.assertObject(require("../lib/angular.js")),
+    equals = $__0.equals,
+    setupModuleLoader = $__0.setupModuleLoader;
 describe('equals', function() {
   it('should return true if same object', function() {
     var o = {};
@@ -72,3 +75,21 @@ describe('equals', function() {
     expect(equals([], {})).to.equal(false);
   });
 });
+describe("anular global object", (function() {
+  var window;
+  beforeEach((function() {
+    window = {};
+  }));
+  describe('setupModuleLoader', (function() {
+    it('exposes angular on the window', (function() {
+      setupModuleLoader(window);
+      expect(window.angular).not.equal(undefined);
+    }));
+    it('creates angular just once', (function() {
+      setupModuleLoader(window);
+      var ng = window.angular;
+      setupModuleLoader(window);
+      expect(window.angular).to.be.equal(ng);
+    }));
+  }));
+}));

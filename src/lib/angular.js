@@ -1,6 +1,11 @@
 var isFunction = (fn) => typeof fn === "function";
 var isArray    = (array) => Object.prototype.toString.call(array) === '[object Array]';
 
+if (require) {
+  global.hola = 'hola'
+  global.window = {}
+}
+
 var compareArrays = (a1, a2) => {
   var length, key;
   if (!isArray(a1) || !isArray(a2)) return false;
@@ -48,6 +53,14 @@ var equals = (o1, o2) => {
   return false;
 };
 
+function setupModuleLoader(window) {
+  var ensure = function(obj, name, factory) {
+    return obj[name] || (obj[name] = factory());
+  };
+  var angular = ensure(window, 'angular', Object);
+}
+
 export {
-  equals
+  equals,
+  setupModuleLoader
 }
