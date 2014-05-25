@@ -6,11 +6,15 @@ Object.defineProperties(exports, {
   __esModule: {value: true}
 });
 var __moduleName = "loader";
+var modules = {};
 function createModule(name, requires) {
-  return {
-    name: name,
-    requires: requires
-  };
+  if (requires) {
+    modules[name] = {
+      name: name,
+      requires: requires
+    };
+  }
+  return modules[name];
 }
 function setupModuleLoader(window) {
   var ensure = function(obj, name, factory) {

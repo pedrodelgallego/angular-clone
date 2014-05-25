@@ -1,5 +1,10 @@
+var modules = {};
+
 function createModule(name, requires) {
-  return { name, requires }
+  if (requires) {
+    modules[name] = { name, requires };
+  }
+  return modules[name];
 }
 
 function setupModuleLoader(window) {

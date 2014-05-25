@@ -50,5 +50,12 @@ describe("angular loaders", () => {
       var myModule = window.angular.module('myModule', ['myOtherModule']);
       expect(myModule.requires).to.be.eql(['myOtherModule']);
     });
+
+    it('allows getting a module', () => {
+      var myModule = window.angular.module('myModule', []);
+      var gotModule = window.angular.module('myModule');
+      expect(gotModule).to.not.be.undefined;
+      expect(gotModule).to.be.equal(myModule);
+    });
   });
 });
