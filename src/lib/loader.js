@@ -1,6 +1,10 @@
 var modules = {};
 
 function createModule(name, requires) {
+  if (name === 'hasOwnProperty') {
+    throw new Error(`module name can not be hasOwnProperty`);
+  }
+
   if (requires) {
     modules[name] = { name, requires };
   }
@@ -19,9 +23,7 @@ function setupModuleLoader(window) {
 
   var angular = ensure(window, 'angular', Object);
 
-  ensure(angular, 'module', function(){
-    return createModule;
-  });
+  ensure(angular, 'module', () => createModule);
 }
 
 export {

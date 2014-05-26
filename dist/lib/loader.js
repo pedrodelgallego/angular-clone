@@ -8,6 +8,9 @@ Object.defineProperties(exports, {
 var __moduleName = "loader";
 var modules = {};
 function createModule(name, requires) {
+  if (name === 'hasOwnProperty') {
+    throw new Error("module name can not be hasOwnProperty");
+  }
   if (requires) {
     modules[name] = {
       name: name,
@@ -24,8 +27,8 @@ function setupModuleLoader(window) {
     return obj[name] || (obj[name] = factory(name));
   };
   var angular = ensure(window, 'angular', Object);
-  ensure(angular, 'module', function() {
+  ensure(angular, 'module', (function() {
     return createModule;
-  });
+  }));
 }
 ;

@@ -58,8 +58,12 @@ describe("angular loaders", () => {
       expect(gotModule).to.be.equal(myModule);
     });
 
-    it('throws when trying to get a nonexisting module', function() {
-      expect(function() { window.angular.module('tomato'); }).to.throw();
+    it('throws when trying to get a nonexisting module', () => {
+      expect(() => { window.angular.module('tomato'); }).to.throw();
+    });
+
+    it('does not allow a module to be called hasOwnProperty', function() {
+      expect(() => {window.angular.module('hasOwnProperty', []);}).to.throw();
     });
   });
 });
