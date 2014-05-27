@@ -9,11 +9,11 @@ describe('injector', (function() {
     window = global;
     setupModuleLoader(window);
   });
-  it('can be created', function() {
+  it('can be created', (function() {
     var injector = createInjector([]);
     expect(injector).to.not.be.undefined;
-  });
-  describe("constant", function() {
+  }));
+  describe("constant", (function() {
     it('has a constant that has been registered to a module', (function() {
       var module = window.angular.module('myModule', []);
       module.constant('aConstant', 42);
@@ -25,5 +25,12 @@ describe('injector', (function() {
       var injector = createInjector(['myModule']);
       expect(injector.has('aConstant')).to.eql(false);
     }));
-  });
+    it('does not allow a constant called hasOwnProperty', (function() {
+      var module = angular.module('myModule', []);
+      module.constant('hasOwnProperty', 4);
+      expect((function() {
+        return createInjector(['myModule']);
+      })).to.throw();
+    }));
+  }));
 }));

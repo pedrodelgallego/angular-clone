@@ -10,12 +10,12 @@ describe('injector', () => {
     setupModuleLoader(window);
   });
 
-  it('can be created', function() {
+  it('can be created', () => {
     var injector = createInjector([]);
     expect(injector).to.not.be.undefined;
   });
 
-  describe("constant", function(){
+  describe("constant", () => {
     it('has a constant that has been registered to a module', () => {
       var module = window.angular.module('myModule', []);
       module.constant('aConstant', 42);
@@ -27,6 +27,12 @@ describe('injector', () => {
       var module = window.angular.module('myModule', []);
       var injector = createInjector(['myModule']);
       expect(injector.has('aConstant')).to.eql(false);
+    });
+
+    it('does not allow a constant called hasOwnProperty', () => {
+      var module = angular.module('myModule', []);
+      module.constant('hasOwnProperty', 4);
+      expect(() => createInjector(['myModule'])).to.throw();
     });
   });
 });

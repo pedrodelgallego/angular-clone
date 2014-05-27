@@ -9,6 +9,9 @@ var __moduleName = "injector";
 function createInjector(modulesToLoad) {
   var cache = {};
   var $provide = {constant: (function(key, value) {
+      if (key === 'hasOwnProperty') {
+        throw new Error('hasOwnProperty is not a valid constant name!');
+      }
       return cache[key] = value;
     })};
   modulesToLoad.forEach((function(moduleName) {
