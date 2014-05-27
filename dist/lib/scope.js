@@ -69,9 +69,7 @@ var Scope = function Scope() {
         try {
           var asyncTask = this.$$asyncQueue.shift();
           asyncTask.scope.$eval(asyncTask.expression);
-        } catch (e) {
-          console.error(e);
-        }
+        } catch (e) {}
       }
       dirty = this.$$digestOnce();
       if ((dirty || this.$$asyncQueue.length) && !(count--)) {

@@ -74,7 +74,7 @@ export class Scope {
           var asyncTask = this.$$asyncQueue.shift();
           asyncTask.scope.$eval(asyncTask.expression);
         }catch (e) {
-          console.error(e);
+          // console.error(e);
         }
       }
 
