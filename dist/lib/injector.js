@@ -8,6 +8,7 @@ Object.defineProperties(exports, {
 var __moduleName = "injector";
 function createInjector(modulesToLoad) {
   var cache = {};
+  var loadedModules = {};
   var $provide = {constant: (function(key, value) {
       if (key === 'hasOwnProperty') {
         throw new Error('hasOwnProperty is not a valid constant name!');
@@ -15,14 +16,19 @@ function createInjector(modulesToLoad) {
       return cache[key] = value;
     })};
   modulesToLoad.forEach(function loadModule(moduleName) {
-    var module = window.angular.module(moduleName);
-    module.requires.forEach(loadModule);
-    module._invokeQueue.forEach((function(invokeArgs) {
-      var $__0 = $traceurRuntime.assertObject(invokeArgs),
-          method = $__0[0],
-          args = $__0[1];
-      $provide[method].apply($provide, args);
-    }));
+    var module;
+    if (!loadedModules.hasOwnProperty(moduleName)) {
+      loadedModules[moduleName] = true;
+      module = window.angular.module(moduleName);
+      loadedModules[moduleName] = module;
+      module.requires.forEach(loadModule);
+      module._invokeQueue.forEach((function(invokeArgs) {
+        var $__0 = $traceurRuntime.assertObject(invokeArgs),
+            method = $__0[0],
+            args = $__0[1];
+        $provide[method].apply($provide, args);
+      }));
+    }
   });
   return {
     has: (function(name) {
