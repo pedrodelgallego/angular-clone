@@ -10,8 +10,10 @@ function  createInjector(modulesToLoad) {
     }
   }
 
-  modulesToLoad.forEach((moduleName) => {
+  modulesToLoad.forEach(function  loadModule(moduleName) {
     var module = window.angular.module(moduleName);
+
+    module.requires.forEach(loadModule)
 
     module._invokeQueue.forEach((invokeArgs) => {
       var [method, args] = invokeArgs;

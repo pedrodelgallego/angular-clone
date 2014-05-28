@@ -47,5 +47,26 @@ describe('injector', (function() {
       expect(injector.has('aConstant')).to.be.equal(true);
       expect(injector.has('anotherConstant')).to.be.equal(true);
     }));
+    it('loads the required modules of a module', function() {
+      var module1 = angular.module('myModule', []);
+      var module2 = angular.module('myOtherModule', ['myModule']);
+      module1.constant('aConstant', 42);
+      module2.constant('anotherConstant', 43);
+      var injector = createInjector(['myOtherModule']);
+      expect(injector.has('aConstant')).to.be.equal(true);
+      expect(injector.has('anotherConstant')).to.be.equal(true);
+    });
+    it('loads the transitively required modules of a module', function() {
+      var module1 = angular.module('myModule', []);
+      var module2 = angular.module('myOtherModule', ['myModule']);
+      var module3 = angular.module('myThirdModule', ['myOtherModule']);
+      module1.constant('aConstant', 42);
+      module2.constant('anotherConstant', 43);
+      module3.constant('aThirdConstant', 44);
+      var injector = createInjector(['myThirdModule']);
+      expect(injector.has('aConstant')).to.be.equal(true);
+      expect(injector.has('anotherConstant')).to.be.equal(true);
+      expect(injector.has('aThirdConstant')).to.be.equal(true);
+    });
   }));
 }));
