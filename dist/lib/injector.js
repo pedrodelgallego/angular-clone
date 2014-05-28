@@ -23,8 +23,13 @@ function createInjector(modulesToLoad) {
       $provide[method].apply($provide, args);
     }));
   }));
-  return {has: (function(name) {
+  return {
+    has: (function(name) {
       return cache.hasOwnProperty(name);
-    })};
+    }),
+    get: (function(name) {
+      return cache[name];
+    })
+  };
 }
 ;

@@ -6,7 +6,7 @@ function  createInjector(modulesToLoad) {
       if (key === 'hasOwnProperty') {
         throw new Error('hasOwnProperty is not a valid constant name!');
       }
-      return cache[key] = value
+      return cache[key] = value;
     }
   }
 
@@ -20,7 +20,8 @@ function  createInjector(modulesToLoad) {
   });
 
   return {
-    has: (name) => cache.hasOwnProperty(name)
+    has: (name) => cache.hasOwnProperty(name),
+    get: (name) => cache[name]
   }
 }
 
