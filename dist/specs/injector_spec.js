@@ -14,30 +14,32 @@ describe('injector', (function() {
     expect(injector).to.not.be.undefined;
   }));
   describe("constant", (function() {
+    var module;
+    beforeEach((function() {
+      return module = angular.module('myModule', []);
+    }));
     it('has a constant that has been registered to a module', (function() {
-      var module = window.angular.module('myModule', []);
       module.constant('aConstant', 42);
       var injector = createInjector(['myModule']);
       expect(injector.has('aConstant')).to.equal(true);
     }));
     it('does not have a non-registered constant', (function() {
-      var module = window.angular.module('myModule', []);
       var injector = createInjector(['myModule']);
       expect(injector.has('aConstant')).to.eql(false);
     }));
     it('does not allow a constant called hasOwnProperty', (function() {
-      var module = angular.module('myModule', []);
       module.constant('hasOwnProperty', 4);
       expect((function() {
         return createInjector(['myModule']);
       })).to.throw();
     }));
     it('can return a registered constant', (function() {
-      var module = angular.module('myModule', []);
       module.constant('aConstant', 42);
       var injector = createInjector(['myModule']);
       expect(injector.get('aConstant')).to.be.equal(42);
     }));
+  }));
+  describe("loading multiple modules", (function() {
     it('loads multiple modules', (function() {
       var module1 = angular.module('myModule', []);
       var module2 = angular.module('myOtherModule', []);
@@ -56,7 +58,7 @@ describe('injector', (function() {
       expect(injector.has('aConstant')).to.be.equal(true);
       expect(injector.has('anotherConstant')).to.be.equal(true);
     });
-    it('loads the transitively required modules of a module', function() {
+    it('loads the transitively required modules of a module', (function() {
       var module1 = angular.module('myModule', []);
       var module2 = angular.module('myOtherModule', ['myModule']);
       var module3 = angular.module('myThirdModule', ['myOtherModule']);
@@ -67,11 +69,24 @@ describe('injector', (function() {
       expect(injector.has('aConstant')).to.be.equal(true);
       expect(injector.has('anotherConstant')).to.be.equal(true);
       expect(injector.has('aThirdConstant')).to.be.equal(true);
-    });
-    it('loads each module only once', function() {
+    }));
+    it('loads each module only once', (function() {
       var module1 = angular.module('myModule', ['myOtherModule']);
       var module2 = angular.module('myOtherModule', ['myModule']);
       createInjector(['myModule']);
-    });
+    }));
+  }));
+  describe("dependency injection", (function() {
+    it('invokes an annotated function with dependency injection', (function() {
+      var module = angular.module('myModule', []);
+      module.constant('a', 1);
+      module.constant('b', 2);
+      var injector = createInjector(['myModule']);
+      var fn = function(one, two) {
+        return one + two;
+      };
+      fn.$inject = ['a', 'b'];
+      expect(injector.invoke(fn)).to.be.equal(3);
+    }));
   }));
 }));

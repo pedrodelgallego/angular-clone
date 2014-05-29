@@ -15,6 +15,12 @@ function createInjector(modulesToLoad) {
       }
       return cache[key] = value;
     })};
+  function invoke(fn) {
+    var args = fn.$inject.map(function(token) {
+      return cache[token];
+    });
+    return fn.apply(null, args);
+  }
   modulesToLoad.forEach(function loadModule(moduleName) {
     var module;
     if (!loadedModules.hasOwnProperty(moduleName)) {
@@ -36,7 +42,8 @@ function createInjector(modulesToLoad) {
     }),
     get: (function(name) {
       return cache[name];
-    })
+    }),
+    invoke: invoke
   };
 }
 ;
