@@ -1,7 +1,8 @@
 import {setupModuleLoader} from "./loader.js"
 
 var isFunction = (fn) => typeof fn === "function";
-var isArray    = (array) => Object.prototype.toString.call(array) === '[object Array]';
+var isArray = (array) => Object.prototype.toString.call(array) === '[object Array]';
+var isString = (obj)  => typeof obj === "string";
 
 if (require) {
   global.hola = 'hola'
@@ -57,5 +58,6 @@ var equals = (o1, o2) => {
 
 
 export {
-  equals
+  equals,
+  isString
 }

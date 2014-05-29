@@ -1,7 +1,9 @@
 "use strict";
 var __moduleName = "angular_spec";
 var expect = $traceurRuntime.assertObject(require("chai")).expect;
-var equals = $traceurRuntime.assertObject(require("../lib/angular.js")).equals;
+var $__0 = $traceurRuntime.assertObject(require("../lib/angular.js")),
+    equals = $__0.equals,
+    isString = $__0.isString;
 describe('equals', function() {
   it('should return true if same object', function() {
     var o = {};
@@ -66,3 +68,15 @@ describe('equals', function() {
     expect(equals([], {})).to.equal(false);
   });
 });
+describe("isString", (function() {
+  it('should return false when comparing an object and an array', function() {
+    expect(isString({})).to.equal(false);
+    expect(isString([])).to.equal(false);
+    expect(isString(1)).to.equal(false);
+    expect(isString(2)).to.equal(false);
+    expect(isString(undefined)).to.equal(false);
+    expect(isString(null)).to.equal(false);
+    expect(isString("")).to.equal(true);
+    expect(isString("foo")).to.equal(true);
+  });
+}));

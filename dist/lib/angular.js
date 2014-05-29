@@ -3,6 +3,9 @@ Object.defineProperties(exports, {
   equals: {get: function() {
       return equals;
     }},
+  isString: {get: function() {
+      return isString;
+    }},
   __esModule: {value: true}
 });
 var __moduleName = "angular";
@@ -12,6 +15,9 @@ var isFunction = (function(fn) {
 });
 var isArray = (function(array) {
   return Object.prototype.toString.call(array) === '[object Array]';
+});
+var isString = (function(obj) {
+  return typeof obj === "string";
 });
 if (require) {
   global.hola = 'hola';
