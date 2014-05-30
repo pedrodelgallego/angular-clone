@@ -6,6 +6,7 @@ Object.defineProperties(exports, {
   __esModule: {value: true}
 });
 var __moduleName = "injector";
+var isString = $traceurRuntime.assertObject(require("./angular.js")).isString;
 function createInjector(modulesToLoad) {
   var cache = {};
   var loadedModules = {};
@@ -16,9 +17,13 @@ function createInjector(modulesToLoad) {
       return cache[key] = value;
     })};
   function invoke(fn) {
-    var args = fn.$inject.map(function(token) {
-      return cache[token];
-    });
+    var args = fn.$inject.map((function(token) {
+      if (isString(token)) {
+        return cache[token];
+      } else {
+        throw new Error('Incorrect injection token! Expected a string, got `token`');
+      }
+    }));
     return fn.apply(null, args);
   }
   modulesToLoad.forEach(function loadModule(moduleName) {

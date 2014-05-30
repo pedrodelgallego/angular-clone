@@ -5,7 +5,6 @@ var isArray = (array) => Object.prototype.toString.call(array) === '[object Arra
 var isString = (obj)  => typeof obj === "string";
 
 if (require) {
-  global.hola = 'hola'
   global.window = {}
 }
 

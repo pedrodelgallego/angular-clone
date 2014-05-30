@@ -1,4 +1,4 @@
-
+import {isString} from "./angular.js"
 
 function  createInjector(modulesToLoad) {
   var cache = {};
@@ -14,8 +14,12 @@ function  createInjector(modulesToLoad) {
   }
 
   function invoke(fn) {
-    var args = fn.$inject.map(function(token) {
-      return cache[token];
+    var args = fn.$inject.map((token) => {
+      if (isString(token)){
+        return cache[token];
+      } else {
+        throw new Error('Incorrect injection token! Expected a string, got `token`');
+      }
     });
     return fn.apply(null, args);
   }

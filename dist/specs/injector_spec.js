@@ -82,11 +82,25 @@ describe('injector', (function() {
       module.constant('a', 1);
       module.constant('b', 2);
       var injector = createInjector(['myModule']);
-      var fn = function(one, two) {
+      var fn = (function(one, two) {
         return one + two;
-      };
+      });
+      ;
       fn.$inject = ['a', 'b'];
       expect(injector.invoke(fn)).to.be.equal(3);
+    }));
+    it('does not accept non-strings as injection tokens', (function() {
+      var module = angular.module('myModule', []);
+      module.constant('a', 1);
+      var injector = createInjector(['myModule']);
+      var fn = (function(one, two) {
+        return one + two;
+      });
+      ;
+      fn.$inject = ['a', 2];
+      expect(function() {
+        injector.invoke(fn);
+      }).to.throw();
     }));
   }));
 }));

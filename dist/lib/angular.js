@@ -20,7 +20,6 @@ var isString = (function(obj) {
   return typeof obj === "string";
 });
 if (require) {
-  global.hola = 'hola';
   global.window = {};
 }
 var compareArrays = (function(a1, a2) {
