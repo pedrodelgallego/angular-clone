@@ -6,6 +6,9 @@ Object.defineProperties(exports, {
   isString: {get: function() {
       return isString;
     }},
+  isArray: {get: function() {
+      return isArray;
+    }},
   __esModule: {value: true}
 });
 var __moduleName = "angular";

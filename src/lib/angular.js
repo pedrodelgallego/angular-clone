@@ -58,5 +58,6 @@ var equals = (o1, o2) => {
 
 export {
   equals,
-  isString
+  isString,
+  isArray
 }

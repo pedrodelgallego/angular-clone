@@ -3,7 +3,8 @@ var __moduleName = "angular_spec";
 var expect = $traceurRuntime.assertObject(require("chai")).expect;
 var $__0 = $traceurRuntime.assertObject(require("../lib/angular.js")),
     equals = $__0.equals,
-    isString = $__0.isString;
+    isString = $__0.isString,
+    isArray = $__0.isArray;
 describe('equals', function() {
   it('should return true if same object', function() {
     var o = {};
@@ -78,5 +79,17 @@ describe("isString", (function() {
     expect(isString(null)).to.equal(false);
     expect(isString("")).to.equal(true);
     expect(isString("foo")).to.equal(true);
+  });
+}));
+describe("isArray", (function() {
+  it('should return false when comparing an object and an array', function() {
+    expect(isArray({})).to.equal(false);
+    expect(isArray(1)).to.equal(false);
+    expect(isArray(2)).to.equal(false);
+    expect(isArray(undefined)).to.equal(false);
+    expect(isArray(null)).to.equal(false);
+    expect(isArray("")).to.equal(false);
+    expect(isArray("foo")).to.equal(false);
+    expect(isArray([])).to.equal(true);
   });
 }));
