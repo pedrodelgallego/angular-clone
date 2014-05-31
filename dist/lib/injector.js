@@ -39,7 +39,7 @@ function createInjector(modulesToLoad) {
     var module;
     if (!loadedModules.hasOwnProperty(moduleName)) {
       loadedModules[moduleName] = true;
-      module = window.angular.module(moduleName);
+      module = angular.module(moduleName);
       loadedModules[moduleName] = module;
       module.requires.forEach(loadModule);
       module._invokeQueue.forEach((function(invokeArgs) {

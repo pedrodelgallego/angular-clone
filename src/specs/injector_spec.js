@@ -4,10 +4,9 @@ import {setupModuleLoader} from "../lib/loader.js"
 
 describe('injector', () => {
 
-  beforeEach(function() {
+  beforeEach(() => {
     delete global.angular;
-    window = global;
-    setupModuleLoader(window);
+    setupModuleLoader(global);
   });
 
   it('can be created', () => {
@@ -53,7 +52,7 @@ describe('injector', () => {
       expect(injector.has('anotherConstant')).to.be.equal(true);
     });
 
-    it('loads the required modules of a module', function() {
+    it('loads the required modules of a module', () => {
       var module1 = angular.module('myModule', []);
       var module2 = angular.module('myOtherModule', ['myModule']);
       module1.constant('aConstant', 42);
@@ -100,7 +99,7 @@ describe('injector', () => {
       var injector = createInjector(['myModule']);
       var fn = (one, two) => one + two; ;
       fn.$inject = ['a', 2];
-      expect(function() { injector.invoke(fn);} ).to.throw();
+      expect(() => injector.invoke(fn)).to.throw();
     });
 
     it('invokes a function with the given this context', () => {
@@ -121,13 +120,13 @@ describe('injector', () => {
       module.constant('a', 1);
       module.constant('b', 2);
       var injector = createInjector(['myModule']);
-      var fn = function(one, two) { return one + two; };
+      var fn = (one, two) => one + two; ;
       fn.$inject = ['a', 'b'];
       expect(injector.invoke(fn, undefined, {b: 3})).to.be.equal(4);
     });
   });
 
-  describe('annotate', function() {
+  describe('annotate', () => {
     it('returns a functions $inject annotation when it has one', () => {
       var injector = createInjector([]);
       var fn = () => { };
@@ -135,15 +134,15 @@ describe('injector', () => {
       expect(injector.annotate(fn)).to.be.eql(['a', 'b']);
     });
 
-    it('returns the array-style annotations of a function', function() {
+    it('returns the array-style annotations of a function', () => {
       var injector = createInjector([]);
-      var fn = ['c', 'd', function() { }];
+      var fn = ['c', 'd', () => {}];
       expect(injector.annotate(fn)).to.be.eql(['c', 'd']);
     });
 
-    it('returns an empty array for a non-annotated 0-arg function', function() {
+    it('returns an empty array for a non-annotated 0-arg function', () => {
       var injector = createInjector([]);
-      var fn = function() { };
+      var fn = () => {};
       expect(injector.annotate(fn)).to.be.eql([]);
     });
   });

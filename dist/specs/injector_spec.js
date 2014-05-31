@@ -4,11 +4,10 @@ var expect = $traceurRuntime.assertObject(require("chai")).expect;
 var createInjector = $traceurRuntime.assertObject(require("../lib/injector.js")).createInjector;
 var setupModuleLoader = $traceurRuntime.assertObject(require("../lib/loader.js")).setupModuleLoader;
 describe('injector', (function() {
-  beforeEach(function() {
+  beforeEach((function() {
     delete global.angular;
-    window = global;
-    setupModuleLoader(window);
-  });
+    setupModuleLoader(global);
+  }));
   it('can be created', (function() {
     var injector = createInjector([]);
     expect(injector).to.not.be.undefined;
@@ -49,7 +48,7 @@ describe('injector', (function() {
       expect(injector.has('aConstant')).to.be.equal(true);
       expect(injector.has('anotherConstant')).to.be.equal(true);
     }));
-    it('loads the required modules of a module', function() {
+    it('loads the required modules of a module', (function() {
       var module1 = angular.module('myModule', []);
       var module2 = angular.module('myOtherModule', ['myModule']);
       module1.constant('aConstant', 42);
@@ -57,7 +56,7 @@ describe('injector', (function() {
       var injector = createInjector(['myOtherModule']);
       expect(injector.has('aConstant')).to.be.equal(true);
       expect(injector.has('anotherConstant')).to.be.equal(true);
-    });
+    }));
     it('loads the transitively required modules of a module', (function() {
       var module1 = angular.module('myModule', []);
       var module2 = angular.module('myOtherModule', ['myModule']);
@@ -98,9 +97,9 @@ describe('injector', (function() {
       });
       ;
       fn.$inject = ['a', 2];
-      expect(function() {
-        injector.invoke(fn);
-      }).to.throw();
+      expect((function() {
+        return injector.invoke(fn);
+      })).to.throw();
     }));
     it('invokes a function with the given this context', (function() {
       var module = angular.module('myModule', []);
@@ -120,29 +119,30 @@ describe('injector', (function() {
       module.constant('a', 1);
       module.constant('b', 2);
       var injector = createInjector(['myModule']);
-      var fn = function(one, two) {
+      var fn = (function(one, two) {
         return one + two;
-      };
+      });
+      ;
       fn.$inject = ['a', 'b'];
       expect(injector.invoke(fn, undefined, {b: 3})).to.be.equal(4);
     }));
   }));
-  describe('annotate', function() {
+  describe('annotate', (function() {
     it('returns a functions $inject annotation when it has one', (function() {
       var injector = createInjector([]);
       var fn = (function() {});
       fn.$inject = ['a', 'b'];
       expect(injector.annotate(fn)).to.be.eql(['a', 'b']);
     }));
-    it('returns the array-style annotations of a function', function() {
+    it('returns the array-style annotations of a function', (function() {
       var injector = createInjector([]);
-      var fn = ['c', 'd', function() {}];
+      var fn = ['c', 'd', (function() {})];
       expect(injector.annotate(fn)).to.be.eql(['c', 'd']);
-    });
-    it('returns an empty array for a non-annotated 0-arg function', function() {
+    }));
+    it('returns an empty array for a non-annotated 0-arg function', (function() {
       var injector = createInjector([]);
-      var fn = function() {};
+      var fn = (function() {});
       expect(injector.annotate(fn)).to.be.eql([]);
-    });
-  });
+    }));
+  }));
 }));
