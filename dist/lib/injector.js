@@ -16,7 +16,7 @@ function createInjector(modulesToLoad) {
       }
       return cache[key] = value;
     })};
-  function invoke(fn) {
+  function invoke(fn, context) {
     var args = fn.$inject.map((function(token) {
       if (isString(token)) {
         return cache[token];
@@ -24,7 +24,7 @@ function createInjector(modulesToLoad) {
         throw new Error('Incorrect injection token! Expected a string, got `token`');
       }
     }));
-    return fn.apply(null, args);
+    return fn.apply(context, args);
   }
   modulesToLoad.forEach(function loadModule(moduleName) {
     var module;

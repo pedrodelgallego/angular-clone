@@ -13,18 +13,19 @@ function  createInjector(modulesToLoad) {
     }
   }
 
-  function invoke(fn) {
+  function invoke(fn, context) {
     var args = fn.$inject.map((token) => {
-      if (isString(token)){
+      if (isString(token)) {
         return cache[token];
       } else {
         throw new Error('Incorrect injection token! Expected a string, got `token`');
       }
     });
-    return fn.apply(null, args);
+
+    return fn.apply(context, args);
   }
 
-  modulesToLoad.forEach(function  loadModule(moduleName) {
+  modulesToLoad.forEach(function loadModule(moduleName) {
     var module;
     if (!loadedModules.hasOwnProperty(moduleName)) {
       loadedModules[moduleName] = true;
