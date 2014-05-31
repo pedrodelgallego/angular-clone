@@ -126,4 +126,19 @@ describe('injector', () => {
       expect(injector.invoke(fn, undefined, {b: 3})).to.be.equal(4);
     });
   });
+
+  describe('annotate', function() {
+    it('returns a functions $inject annotation when it has one', () => {
+      var injector = createInjector([]);
+      var fn = () => { };
+      fn.$inject = ['a', 'b'];
+      expect(injector.annotate(fn)).to.be.eql(['a', 'b']);
+    });
+
+    it('returns the array-style annotations of a function', function() {
+      var injector = createInjector([]);
+      var fn = ['c', 'd', function() { }];
+      expect(injector.annotate(fn)).to.be.eql(['c', 'd']);
+    });
+  });
 });

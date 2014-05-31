@@ -6,7 +6,9 @@ Object.defineProperties(exports, {
   __esModule: {value: true}
 });
 var __moduleName = "injector";
-var isString = $traceurRuntime.assertObject(require("./angular.js")).isString;
+var $__0 = $traceurRuntime.assertObject(require("./angular.js")),
+    isString = $__0.isString,
+    isArray = $__0.isArray;
 function createInjector(modulesToLoad) {
   var cache = {};
   var loadedModules = {};
@@ -16,6 +18,12 @@ function createInjector(modulesToLoad) {
       }
       return cache[key] = value;
     })};
+  function annotate(fn) {
+    if (isArray(fn)) {
+      return fn.slice(0, fn.length - 1);
+    }
+    return fn.$inject;
+  }
   function invoke(fn, context, locals) {
     var args = fn.$inject.map((function(token) {
       if (isString(token)) {
@@ -49,7 +57,8 @@ function createInjector(modulesToLoad) {
     get: (function(name) {
       return cache[name];
     }),
-    invoke: invoke
+    invoke: invoke,
+    annotate: annotate
   };
 }
 ;

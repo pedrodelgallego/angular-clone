@@ -1,4 +1,4 @@
-import {isString} from "./angular.js"
+import {isString, isArray} from "./angular.js"
 
 function  createInjector(modulesToLoad) {
   var cache = {};
@@ -11,6 +11,13 @@ function  createInjector(modulesToLoad) {
       }
       return cache[key] = value;
     }
+  }
+
+  function annotate(fn) {
+    if (isArray(fn)){
+      return fn.slice(0, fn.length - 1);
+    }
+    return fn.$inject;
   }
 
   function invoke(fn, context, locals) {
@@ -45,7 +52,8 @@ function  createInjector(modulesToLoad) {
   return {
     has: (name) => cache.hasOwnProperty(name),
     get: (name) => cache[name],
-    invoke
+    invoke,
+    annotate
   }
 }
 
