@@ -22,7 +22,7 @@ function createInjector(modulesToLoad) {
     if (isArray(fn)) {
       return fn.slice(0, fn.length - 1);
     }
-    return fn.$inject;
+    return fn.$inject || [];
   }
   function invoke(fn, context, locals) {
     var args = fn.$inject.map((function(token) {

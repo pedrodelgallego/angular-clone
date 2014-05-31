@@ -139,5 +139,10 @@ describe('injector', (function() {
       var fn = ['c', 'd', function() {}];
       expect(injector.annotate(fn)).to.be.eql(['c', 'd']);
     });
+    it('returns an empty array for a non-annotated 0-arg function', function() {
+      var injector = createInjector([]);
+      var fn = function() {};
+      expect(injector.annotate(fn)).to.be.eql([]);
+    });
   });
 }));
