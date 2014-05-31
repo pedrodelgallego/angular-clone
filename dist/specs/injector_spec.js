@@ -144,5 +144,10 @@ describe('injector', (function() {
       var fn = (function() {});
       expect(injector.annotate(fn)).to.be.eql([]);
     }));
+    it('returns annotations parsed from function args when not annotated', (function() {
+      var injector = createInjector([]);
+      var fn = (function(a, b) {});
+      expect(injector.annotate(fn)).to.be.eql(['a', 'b']);
+    }));
   }));
 }));

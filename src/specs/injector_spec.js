@@ -145,5 +145,11 @@ describe('injector', () => {
       var fn = () => {};
       expect(injector.annotate(fn)).to.be.eql([]);
     });
+
+    it('returns annotations parsed from function args when not annotated', () => {
+      var injector = createInjector([]);
+      var fn = (a, b) => { };
+      expect(injector.annotate(fn)).to.be.eql(['a', 'b']);
+    });
   });
 });

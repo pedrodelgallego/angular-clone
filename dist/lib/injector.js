@@ -9,6 +9,8 @@ var __moduleName = "injector";
 var $__0 = $traceurRuntime.assertObject(require("./angular.js")),
     isString = $__0.isString,
     isArray = $__0.isArray;
+var FN_ARGS = /^function\s*[^\(]*\(\s*([^\)]*)\)/m;
+var FN_ARG = /^\s*(\S+)\s*$/;
 function createInjector(modulesToLoad) {
   var cache = {};
   var loadedModules = {};
@@ -21,8 +23,16 @@ function createInjector(modulesToLoad) {
   function annotate(fn) {
     if (isArray(fn)) {
       return fn.slice(0, fn.length - 1);
+    } else if (fn.$inject) {
+      return fn.$inject;
+    } else if (!fn.length) {
+      return [];
+    } else {
+      var argDeclaration = fn.toString().match(FN_ARGS);
+      return argDeclaration[1].split(',').map((function(arg) {
+        return arg.replace(/\s/g, "");
+      }));
     }
-    return fn.$inject || [];
   }
   function invoke(fn, context, locals) {
     var args = fn.$inject.map((function(token) {
