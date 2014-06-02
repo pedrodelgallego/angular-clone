@@ -16,6 +16,13 @@ function  createInjector(modulesToLoad) {
     }
   }
 
+  function  instantiate(Type, locals){
+    var UnwrappedType = isArray(Type) ? Type[Type.length - 1] : Type;
+    var instance = Object.create(UnwrappedType.prototype);
+    invoke(Type, instance, locals);
+    return instance;
+  }
+
   function annotate(fn) {
     if (isArray(fn)){
       return fn.slice(0, fn.length - 1);
@@ -66,7 +73,8 @@ function  createInjector(modulesToLoad) {
     has: (name) => cache.hasOwnProperty(name),
     get: (name) => cache[name],
     invoke,
-    annotate
+    annotate,
+    instantiate
   }
 }
 
