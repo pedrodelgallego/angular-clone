@@ -151,5 +151,11 @@ describe('injector', () => {
       var fn = (a, b) => { };
       expect(injector.annotate(fn)).to.be.eql(['a', 'b']);
     });
+
+    it('strips comments from argument lists when parsing', () => {
+      var injector = createInjector([]);
+      var fn = (a, /*b,*/ c) => { };
+      expect(injector.annotate(fn)).to.be.eql(['a', 'c']);
+    });
   });
 });

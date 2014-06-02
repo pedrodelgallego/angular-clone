@@ -149,5 +149,10 @@ describe('injector', (function() {
       var fn = (function(a, b) {});
       expect(injector.annotate(fn)).to.be.eql(['a', 'b']);
     }));
+    it('strips comments from argument lists when parsing', (function() {
+      var injector = createInjector([]);
+      var fn = (function(a, c) {});
+      expect(injector.annotate(fn)).to.be.eql(['a', 'c']);
+    }));
   }));
 }));
