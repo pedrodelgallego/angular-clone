@@ -158,4 +158,25 @@ describe('injector', () => {
       expect(injector.annotate(fn)).to.be.eql(['a', 'c']);
     });
   });
+
+  describe('invoke + annotate', () => {
+    it('invokes an array-annotated function with dependency injection', () => {
+      var module = angular.module('myModule', []);
+      module.constant('a', 1);
+      module.constant('b', 2);
+      var injector = createInjector(['myModule']);
+      var fn = ['a', 'b', (one, two) => one + two ];
+      expect(injector.invoke(fn)).to.be.equal(3);
+    });
+
+
+    it('invokes a non-annotated function with dependency injection', () => {
+      var module = angular.module('myModule', []);
+      module.constant('a', 1);
+      module.constant('b', 2);
+      var injector = createInjector(['myModule']);
+      var fn = (a, b) => a + b;
+      expect(injector.invoke(fn)).to.be.equal(3);
+    });
+  });
 });

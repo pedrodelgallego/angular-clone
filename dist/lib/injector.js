@@ -35,7 +35,7 @@ function createInjector(modulesToLoad) {
     }
   }
   function invoke(fn, context, locals) {
-    var args = fn.$inject.map((function(token) {
+    var args = annotate(fn).map((function(token) {
       if (isString(token)) {
         var hasLocalProperty = locals && locals.hasOwnProperty(token);
         return hasLocalProperty ? locals[token] : cache[token];
@@ -43,6 +43,9 @@ function createInjector(modulesToLoad) {
         throw new Error('Incorrect injection token! Expected a string, got `token`');
       }
     }));
+    if (isArray(fn)) {
+      fn = fn[fn.length - 1];
+    }
     return fn.apply(context, args);
   }
   modulesToLoad.forEach(function loadModule(moduleName) {
