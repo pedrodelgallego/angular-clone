@@ -1,3 +1,30 @@
+/**
+ * @module ng
+ * @name angular.injector
+ *
+ * @description
+ * Creates an injector function that can be used for retrieving services as well as for
+ * dependency injection
+ *
+ * @param {Array.<string|Function>} modules A list of module functions
+ * or their aliases.
+ *
+ * @returns {function()} Injector function.
+ *
+ * @example
+ * Typical usage
+ * ```js
+ *   // create an injector
+ *   var $injector = angular.injector(['ng']);
+ *
+ *   // use the injector to kick off your application
+ *   // use the type inference to auto inject arguments, or use implicit injection
+ *   $injector.invoke(function($rootScope, $compile, $document){
+ *     $compile($document)($rootScope);
+ *     $rootScope.$digest();
+ *   });
+ * ```
+ */
 import {isString, isArray} from "./angular.js"
 
 var FN_ARGS = /^function\s*[^\(]*\(\s*([^\)]*)\)/m;
@@ -36,6 +63,18 @@ function  createInjector(modulesToLoad) {
     }
   }
 
+  /**
+   * @name $injector#invoke
+   *
+   * @description
+   * Invoke the method and supply the method arguments from the `$injector`.
+   *
+   * @param {!Function} fn The function to invoke.
+   * @param {Object=} context The `this` for the invoked method.
+   * @param {Object=} locals Optional object. If preset then any argument names are read from this
+   *                         object first, before the `$injector` is consulted.
+   * @returns {*} the value returned by the invoked `fn` function.
+   */
   function invoke(fn, context, locals) {
     var args = annotate(fn).map((token) => {
       if (isString(token)) {
@@ -70,8 +109,28 @@ function  createInjector(modulesToLoad) {
   });
 
   return {
+    /**
+     * @name $injector#has
+     *
+     * @description
+     * Allows the user to query if the particular service exists.
+     *
+     * @param {string} Name of the service to query.
+     * @returns {boolean} returns true if injector has given service.
+     */
     has: (name) => cache.hasOwnProperty(name),
+
+    /**
+     * @name $injector#get
+     *
+     * @description
+     * Return an instance of the service.
+     *
+     * @param {string} name The name of the instance to retrieve.
+     * @return {*} The instance.
+     */
     get: (name) => cache[name],
+
     invoke,
     annotate,
     instantiate
