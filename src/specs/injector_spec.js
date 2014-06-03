@@ -227,4 +227,19 @@ describe('injector', () => {
       expect(instance.result).to.be.equal(4);
     });
   });
+
+  describe("provider", () => {
+    var module;
+
+    beforeEach(() => module = angular.module('myModule', []));
+
+    it('allows registering a provider and uses its $get', () => {
+
+      module.provider('a', { $get: () => 42 });
+
+      var injector = createInjector(['myModule']);
+      expect(injector.has('a')).to.be.equal(true);
+      expect(injector.get('a')).to.be.equal(42);
+    });
+  });
 });

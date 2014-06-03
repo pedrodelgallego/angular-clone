@@ -11,12 +11,17 @@ function createModule(name, requires, modules) {
   if (name === 'hasOwnProperty') {
     throw new Error("module name can not be hasOwnProperty");
   }
+  var invokeLater = (function(method) {
+    return function() {
+      moduleInstance._invokeQueue.push([method, arguments]);
+      return moduleInstance;
+    };
+  });
   var moduleInstance = {
     name: name,
     requires: requires,
-    constant: function(key, value) {
-      moduleInstance._invokeQueue.push(['constant', [key, value]]);
-    },
+    constant: invokeLater('constant'),
+    provider: invokeLater('provider'),
     _invokeQueue: []
   };
   modules[name] = moduleInstance;

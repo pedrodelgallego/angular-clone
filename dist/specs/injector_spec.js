@@ -231,4 +231,18 @@ describe('injector', (function() {
       expect(instance.result).to.be.equal(4);
     }));
   }));
+  describe("provider", (function() {
+    var module;
+    beforeEach((function() {
+      return module = angular.module('myModule', []);
+    }));
+    it('allows registering a provider and uses its $get', (function() {
+      module.provider('a', {$get: (function() {
+          return 42;
+        })});
+      var injector = createInjector(['myModule']);
+      expect(injector.has('a')).to.be.equal(true);
+      expect(injector.get('a')).to.be.equal(42);
+    }));
+  }));
 }));

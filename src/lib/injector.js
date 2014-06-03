@@ -40,10 +40,13 @@ function  createInjector(modulesToLoad) {
         throw new Error('hasOwnProperty is not a valid constant name!');
       }
       return cache[key] = value;
-    }
-  }
+    },
 
-  function  instantiate(Type, locals){
+    provider: (key, provider) => cache[key] = provider.$get()
+
+  };
+
+  function instantiate(Type, locals){
     var UnwrappedType = isArray(Type) ? Type[Type.length - 1] : Type;
     var instance = Object.create(UnwrappedType.prototype);
     invoke(Type, instance, locals);
@@ -86,9 +89,9 @@ function  createInjector(modulesToLoad) {
     });
 
     if (isArray(fn)) {
-
       fn = fn[fn.length - 1];
     }
+
     return fn.apply(context, args);
   }
 

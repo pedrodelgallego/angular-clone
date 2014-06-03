@@ -25,7 +25,7 @@ gulp.task('default', function() {
         .pipe(traceur({sourceMap: false}))
         .pipe(gulp.dest('dist'))
 
-      dist.pipe(mocha({ reporter: 'spec' }))
+      dist.pipe(mocha({ reporter: 'dot' }))
         .on('error', function(err) {
           if (!/spec? failed/.test(err.stack)) {
             console.log(err.stack);

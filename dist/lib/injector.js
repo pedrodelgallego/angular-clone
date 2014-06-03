@@ -14,12 +14,17 @@ var FN_ARG = /^\s*(\S+)\s*$/;
 function createInjector(modulesToLoad) {
   var cache = {};
   var loadedModules = {};
-  var $provide = {constant: (function(key, value) {
+  var $provide = {
+    constant: (function(key, value) {
       if (key === 'hasOwnProperty') {
         throw new Error('hasOwnProperty is not a valid constant name!');
       }
       return cache[key] = value;
-    })};
+    }),
+    provider: (function(key, provider) {
+      return cache[key] = provider.$get();
+    })
+  };
   function instantiate(Type, locals) {
     var UnwrappedType = isArray(Type) ? Type[Type.length - 1] : Type;
     var instance = Object.create(UnwrappedType.prototype);
