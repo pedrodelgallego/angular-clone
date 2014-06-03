@@ -336,7 +336,7 @@ describe("Scope", () => {
       setTimeout(function() {
         expect(scope.counter).to.be.equal(1);
         done();
-      }, 50);
+      }, 0);
     });
 
     it("catches exceptions in $$postDigest", function() {

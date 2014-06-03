@@ -2,10 +2,6 @@ import {expect} from "chai"
 import {Injector} from "../lib/injector.js"
 import {setupModuleLoader} from "../lib/loader.js"
 
-function createInjector(modules){
-  return new Injector(modules);
-}
-
 describe('injector', () => {
 
   beforeEach(() => {
@@ -14,7 +10,7 @@ describe('injector', () => {
   });
 
   it('can be created', () => {
-    var injector = createInjector([]);
+    var injector = new Injector([]);
     expect(injector).to.not.be.undefined;
   });
 
@@ -24,23 +20,23 @@ describe('injector', () => {
 
     it('has a constant that has been registered to a module', () => {
       module.constant('aConstant', 42);
-      var injector = createInjector(['myModule']);
+      var injector = new Injector(['myModule']);
       expect(injector.has('aConstant')).to.equal(true);
     });
 
     it('does not have a non-registered constant', () => {
-      var injector = createInjector(['myModule']);
+      var injector = new Injector(['myModule']);
       expect(injector.has('aConstant')).to.eql(false);
     });
 
     it('does not allow a constant called hasOwnProperty', () => {
       module.constant('hasOwnProperty', 4);
-      expect(() => createInjector(['myModule'])).to.throw();
+      expect(() => new Injector(['myModule'])).to.throw();
     });
 
     it('can return a registered constant', () => {
       module.constant('aConstant', 42);
-      var injector = createInjector(['myModule']);
+      var injector = new Injector(['myModule']);
       expect(injector.get('aConstant')).to.be.equal(42);
     });
   });
@@ -51,7 +47,7 @@ describe('injector', () => {
       var module2 = angular.module('myOtherModule', []);
       module1.constant('aConstant', 42);
       module2.constant('anotherConstant', 43);
-      var injector = createInjector(['myModule', 'myOtherModule']);
+      var injector = new Injector(['myModule', 'myOtherModule']);
       expect(injector.has('aConstant')).to.be.equal(true);
       expect(injector.has('anotherConstant')).to.be.equal(true);
     });
@@ -61,7 +57,7 @@ describe('injector', () => {
       var module2 = angular.module('myOtherModule', ['myModule']);
       module1.constant('aConstant', 42);
       module2.constant('anotherConstant', 43);
-      var injector = createInjector(['myOtherModule']);
+      var injector = new Injector(['myOtherModule']);
       expect(injector.has('aConstant')).to.be.equal(true);
       expect(injector.has('anotherConstant')).to.be.equal(true);
     });
@@ -73,7 +69,7 @@ describe('injector', () => {
       module1.constant('aConstant', 42);
       module2.constant('anotherConstant', 43);
       module3.constant('aThirdConstant', 44);
-      var injector = createInjector(['myThirdModule']);
+      var injector = new Injector(['myThirdModule']);
       expect(injector.has('aConstant')).to.be.equal(true);
       expect(injector.has('anotherConstant')).to.be.equal(true);
       expect(injector.has('aThirdConstant')).to.be.equal(true);
@@ -82,7 +78,7 @@ describe('injector', () => {
     it('loads each module only once', () => {
       var module1 = angular.module('myModule', ['myOtherModule']);
       var module2 = angular.module('myOtherModule', ['myModule']);
-      createInjector(['myModule']);
+      new Injector(['myModule']);
     });
   });
 
@@ -91,7 +87,7 @@ describe('injector', () => {
       var module = angular.module('myModule', []);
       module.constant('a', 1);
       module.constant('b', 2);
-      var injector = createInjector(['myModule']);
+      var injector = new Injector(['myModule']);
       var fn = (one, two) => one + two; ;
       fn.$inject = ['a', 'b'];
       expect(injector.invoke(fn)).to.be.equal(3);
@@ -100,7 +96,7 @@ describe('injector', () => {
     it('does not accept non-strings as injection tokens', () => {
       var module = angular.module('myModule', []);
       module.constant('a', 1);
-      var injector = createInjector(['myModule']);
+      var injector = new Injector(['myModule']);
       var fn = (one, two) => one + two; ;
       fn.$inject = ['a', 2];
       expect(() => injector.invoke(fn)).to.throw();
@@ -109,7 +105,7 @@ describe('injector', () => {
     it('invokes a function with the given this context', () => {
       var module = angular.module('myModule', []);
       module.constant('a', 1);
-      var injector = createInjector(['myModule']);
+      var injector = new Injector(['myModule']);
       var obj = {
         two: 2,
         fn: function(one) { return one + this.two; }
@@ -123,7 +119,7 @@ describe('injector', () => {
       var module = angular.module('myModule', []);
       module.constant('a', 1);
       module.constant('b', 2);
-      var injector = createInjector(['myModule']);
+      var injector = new Injector(['myModule']);
       var fn = (one, two) => one + two; ;
       fn.$inject = ['a', 'b'];
       expect(injector.invoke(fn, undefined, {b: 3})).to.be.equal(4);
@@ -132,32 +128,32 @@ describe('injector', () => {
 
   describe('annotate', () => {
     it('returns a functions $inject annotation when it has one', () => {
-      var injector = createInjector([]);
+      var injector = new Injector([]);
       var fn = () => { };
       fn.$inject = ['a', 'b'];
       expect(injector.annotate(fn)).to.be.eql(['a', 'b']);
     });
 
     it('returns the array-style annotations of a function', () => {
-      var injector = createInjector([]);
+      var injector = new Injector([]);
       var fn = ['c', 'd', () => {}];
       expect(injector.annotate(fn)).to.be.eql(['c', 'd']);
     });
 
     it('returns an empty array for a non-annotated 0-arg function', () => {
-      var injector = createInjector([]);
+      var injector = new Injector([]);
       var fn = () => {};
       expect(injector.annotate(fn)).to.be.eql([]);
     });
 
     it('returns annotations parsed from function args when not annotated', () => {
-      var injector = createInjector([]);
+      var injector = new Injector([]);
       var fn = (a, b) => { };
       expect(injector.annotate(fn)).to.be.eql(['a', 'b']);
     });
 
     it('strips comments from argument lists when parsing', () => {
-      var injector = createInjector([]);
+      var injector = new Injector([]);
       var fn = (a, /*b,*/ c) => { };
       expect(injector.annotate(fn)).to.be.eql(['a', 'c']);
     });
@@ -168,7 +164,7 @@ describe('injector', () => {
       var module = angular.module('myModule', []);
       module.constant('a', 1);
       module.constant('b', 2);
-      var injector = createInjector(['myModule']);
+      var injector = new Injector(['myModule']);
       var fn = ['a', 'b', (one, two) => one + two ];
       expect(injector.invoke(fn)).to.be.equal(3);
     });
@@ -178,7 +174,7 @@ describe('injector', () => {
       var module = angular.module('myModule', []);
       module.constant('a', 1);
       module.constant('b', 2);
-      var injector = createInjector(['myModule']);
+      var injector = new Injector(['myModule']);
       var fn = (a, b) => a + b;
       expect(injector.invoke(fn)).to.be.equal(3);
     });;
@@ -191,7 +187,7 @@ describe('injector', () => {
       module = angular.module('myModule', []);
       module.constant('a', 1);
       module.constant('b', 2);
-      injector = createInjector(['myModule']);
+      injector = new Injector(['myModule']);
     });
 
     it('instantiates an annotated constructor function', () => {
@@ -214,7 +210,7 @@ describe('injector', () => {
       function Type() { this.v = this.getValue(); }
       Type.prototype = BaseType.prototype;
       var module = angular.module('myModule', []);
-      var injector = createInjector(['myModule']);
+      var injector = new Injector(['myModule']);
       var instance = injector.instantiate(Type);
       expect(instance.v).to.be.equal(42);
     });
@@ -223,7 +219,7 @@ describe('injector', () => {
       var module = angular.module('myModule', []);
       module.constant('a', 1);
       module.constant('b', 2);
-      var injector = createInjector(['myModule']);
+      var injector = new Injector(['myModule']);
       function Type(a, b) {
         this.result = a + b;
       }
@@ -239,7 +235,7 @@ describe('injector', () => {
 
     it('allows registering a provider and uses its $get', () => {
       module.provider('a', { $get: () => 42 });
-      var injector = createInjector(['myModule']);
+      var injector = new Injector(['myModule']);
       expect(injector.has('a')).to.be.equal(true);
       expect(injector.get('a')).to.be.equal(42);
     });
@@ -248,7 +244,7 @@ describe('injector', () => {
       var module = angular.module('myModule', []);
       module.constant('a', 1);
       module.provider('b', { $get: (a) => a + 2 });
-      var injector = createInjector(['myModule']);
+      var injector = new Injector(['myModule']);
       expect(injector.get('b')).to.be.equal(3);
     });
   });
