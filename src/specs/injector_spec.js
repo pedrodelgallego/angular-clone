@@ -1,6 +1,10 @@
 import {expect} from "chai"
-import {createInjector} from "../lib/injector.js"
+import {Injector} from "../lib/injector.js"
 import {setupModuleLoader} from "../lib/loader.js"
+
+function createInjector(modules){
+  return new Injector(modules);
+}
 
 describe('injector', () => {
 

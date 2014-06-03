@@ -1,37 +1,75 @@
 "use strict";
 Object.defineProperties(exports, {
-  createInjector: {get: function() {
-      return createInjector;
+  Injector: {get: function() {
+      return Injector;
     }},
   __esModule: {value: true}
 });
 var __moduleName = "injector";
-var $__0 = $traceurRuntime.assertObject(require("./angular.js")),
-    isString = $__0.isString,
-    isArray = $__0.isArray;
+var $__2 = $traceurRuntime.assertObject(require("./angular.js")),
+    isString = $__2.isString,
+    isArray = $__2.isArray;
 var FN_ARGS = /^function\s*[^\(]*\(\s*([^\)]*)\)/m;
 var FN_ARG = /^\s*(\S+)\s*$/;
-function createInjector(modulesToLoad) {
-  var cache = {};
-  var loadedModules = {};
-  var $provide = {
+function assertHasOwnPropertyName(key) {
+  if (key === 'hasOwnProperty') {
+    throw new Error('hasOwnProperty is not a valid constant name!');
+  }
+  ;
+}
+var Injector = function Injector(modulesToLoad) {
+  var $__0 = this;
+  this.cache = {};
+  this.loadedModules = {};
+  this.$provide = {
     constant: (function(key, value) {
-      if (key === 'hasOwnProperty') {
-        throw new Error('hasOwnProperty is not a valid constant name!');
-      }
-      return cache[key] = value;
+      assertHasOwnPropertyName(key);
+      return $__0.cache[key] = value;
     }),
     provider: (function(key, provider) {
-      return cache[key] = invoke(provider.$get, provider);
+      return $__0.cache[key] = $__0.invoke(provider.$get, provider);
     })
   };
-  function instantiate(Type, locals) {
-    var UnwrappedType = isArray(Type) ? Type[Type.length - 1] : Type;
-    var instance = Object.create(UnwrappedType.prototype);
-    invoke(Type, instance, locals);
-    return instance;
-  }
-  function annotate(fn) {
+  var loadModule = (function(moduleName) {
+    var module;
+    if (!$__0.loadedModules.hasOwnProperty(moduleName)) {
+      $__0.loadedModules[moduleName] = true;
+      module = angular.module(moduleName);
+      $__0.loadedModules[moduleName] = module;
+      module.requires.forEach(loadModule);
+      module._invokeQueue.forEach((function(invokeArgs) {
+        var $__2 = $traceurRuntime.assertObject(invokeArgs),
+            method = $__2[0],
+            args = $__2[1];
+        $__0.$provide[method].apply($__0.$provide, args);
+      }));
+    }
+  });
+  modulesToLoad.forEach(loadModule);
+};
+($traceurRuntime.createClass)(Injector, {
+  has: function(name) {
+    return this.cache.hasOwnProperty(name);
+  },
+  get: function(name) {
+    return this.cache[name];
+  },
+  invoke: function(fn, context, locals) {
+    var $__0 = this;
+    var args = this.annotate(fn).map((function(token) {
+      if (isString(token)) {
+        var hasLocalProperty = locals && locals.hasOwnProperty(token);
+        return hasLocalProperty ? locals[token] : $__0.cache[token];
+      } else {
+        throw new Error('Incorrect injection token! Expected a string, got `token`');
+      }
+    }));
+    if (isArray(fn)) {
+      fn = fn[fn.length - 1];
+    }
+    return fn.apply(context, args);
+  },
+  annotate: function(fn) {
     if (isArray(fn)) {
       return fn.slice(0, fn.length - 1);
     } else if (fn.$inject) {
@@ -44,46 +82,11 @@ function createInjector(modulesToLoad) {
         return arg.replace(/\s/g, "");
       }));
     }
+  },
+  instantiate: function(Type, locals) {
+    var UnwrappedType = isArray(Type) ? Type[Type.length - 1] : Type;
+    var instance = Object.create(UnwrappedType.prototype);
+    this.invoke(Type, instance, locals);
+    return instance;
   }
-  function invoke(fn, context, locals) {
-    var args = annotate(fn).map((function(token) {
-      if (isString(token)) {
-        var hasLocalProperty = locals && locals.hasOwnProperty(token);
-        return hasLocalProperty ? locals[token] : cache[token];
-      } else {
-        throw new Error('Incorrect injection token! Expected a string, got `token`');
-      }
-    }));
-    if (isArray(fn)) {
-      fn = fn[fn.length - 1];
-    }
-    return fn.apply(context, args);
-  }
-  modulesToLoad.forEach(function loadModule(moduleName) {
-    var module;
-    if (!loadedModules.hasOwnProperty(moduleName)) {
-      loadedModules[moduleName] = true;
-      module = angular.module(moduleName);
-      loadedModules[moduleName] = module;
-      module.requires.forEach(loadModule);
-      module._invokeQueue.forEach((function(invokeArgs) {
-        var $__0 = $traceurRuntime.assertObject(invokeArgs),
-            method = $__0[0],
-            args = $__0[1];
-        $provide[method].apply($provide, args);
-      }));
-    }
-  });
-  return {
-    has: (function(name) {
-      return cache.hasOwnProperty(name);
-    }),
-    get: (function(name) {
-      return cache[name];
-    }),
-    invoke: invoke,
-    annotate: annotate,
-    instantiate: instantiate
-  };
-}
-;
+}, {});

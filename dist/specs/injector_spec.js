@@ -1,8 +1,11 @@
 "use strict";
 var __moduleName = "injector_spec";
 var expect = $traceurRuntime.assertObject(require("chai")).expect;
-var createInjector = $traceurRuntime.assertObject(require("../lib/injector.js")).createInjector;
+var Injector = $traceurRuntime.assertObject(require("../lib/injector.js")).Injector;
 var setupModuleLoader = $traceurRuntime.assertObject(require("../lib/loader.js")).setupModuleLoader;
+function createInjector(modules) {
+  return new Injector(modules);
+}
 describe('injector', (function() {
   beforeEach((function() {
     delete global.angular;
