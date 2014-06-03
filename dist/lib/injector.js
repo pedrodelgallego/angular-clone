@@ -22,7 +22,7 @@ function createInjector(modulesToLoad) {
       return cache[key] = value;
     }),
     provider: (function(key, provider) {
-      return cache[key] = provider.$get();
+      return cache[key] = invoke(provider.$get, provider);
     })
   };
   function instantiate(Type, locals) {

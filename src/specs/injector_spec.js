@@ -234,12 +234,18 @@ describe('injector', () => {
     beforeEach(() => module = angular.module('myModule', []));
 
     it('allows registering a provider and uses its $get', () => {
-
       module.provider('a', { $get: () => 42 });
-
       var injector = createInjector(['myModule']);
       expect(injector.has('a')).to.be.equal(true);
       expect(injector.get('a')).to.be.equal(42);
+    });
+
+    it('injects the $get method of a provider', () => {
+      var module = angular.module('myModule', []);
+      module.constant('a', 1);
+      module.provider('b', { $get: (a) => a + 2 });
+      var injector = createInjector(['myModule']);
+      expect(injector.get('b')).to.be.equal(3);
     });
   });
 });

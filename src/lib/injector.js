@@ -42,7 +42,9 @@ function  createInjector(modulesToLoad) {
       return cache[key] = value;
     },
 
-    provider: (key, provider) => cache[key] = provider.$get()
+    provider: (key, provider) => {
+      return cache[key] =  invoke(provider.$get, provider);
+    }
 
   };
 
