@@ -4,9 +4,9 @@ var expect = $traceurRuntime.assertObject(require("chai")).expect;
 var Injector = $traceurRuntime.assertObject(require("../lib/injector.js")).Injector;
 var setupModuleLoader = $traceurRuntime.assertObject(require("../lib/loader.js")).setupModuleLoader;
 function identity(value) {
-  return function() {
+  return (function() {
     return value;
-  };
+  });
 }
 ;
 describe('injector', (function() {
@@ -256,12 +256,20 @@ describe('injector', (function() {
     }));
     it('injects the $get method of a provider lazily', (function() {
       var module = angular.module('myModule', []);
-      module.provider('b', {$get: function(a) {
+      module.provider('b', {$get: (function(a) {
           return a + 2;
-        }});
+        })});
       module.provider('a', {$get: identity(1)});
       var injector = new Injector(['myModule']);
       expect(injector.get('b')).to.be.equal(3);
+    }));
+    it('instantiates a dependency only once', (function() {
+      var module = angular.module('myModule', []);
+      module.provider('a', {$get: (function() {
+          return {};
+        })});
+      var injector = new Injector(['myModule']);
+      expect(injector.get('a')).to.be.equal(injector.get('a'));
     }));
   }));
 }));

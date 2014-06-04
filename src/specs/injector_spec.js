@@ -2,7 +2,7 @@ import {expect} from "chai"
 import {Injector} from "../lib/injector.js"
 import {setupModuleLoader} from "../lib/loader.js"
 
-function  identity(value) { return function(){ return value; }};
+function  identity(value) { return () => value };
 
 describe('injector', () => {
 
@@ -251,10 +251,17 @@ describe('injector', () => {
 
     it('injects the $get method of a provider lazily', () => {
       var module = angular.module('myModule', []);
-      module.provider('b', { $get: function(a) { return a + 2; } });
+      module.provider('b', { $get: (a) => a + 2  });
       module.provider('a', { $get: identity(1) });
       var injector = new Injector(['myModule']);
       expect(injector.get('b')).to.be.equal(3);
+    });
+
+    it('instantiates a dependency only once', () => {
+      var module = angular.module('myModule', []);
+      module.provider('a', {$get: () => { return {}; }});
+      var injector = new Injector(['myModule']);
+      expect(injector.get('a')).to.be.equal(injector.get('a'));
     });
   });
 });

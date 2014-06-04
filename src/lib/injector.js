@@ -79,7 +79,8 @@ export class Injector {
       return this.instanceCache[name];
     } else if (this.providerCache.hasOwnProperty(name + "Provider")){
       var provider = this.providerCache[name + 'Provider'];
-      return this.invoke(provider.$get, provider);
+      this.instanceCache[name] = this.invoke(provider.$get);
+      return this.instanceCache[name];
     }
   }
 
