@@ -19,15 +19,16 @@ function assertHasOwnPropertyName(key) {
 }
 var Injector = function Injector(modulesToLoad) {
   var $__0 = this;
-  this.cache = {};
+  this.providerCache = {};
+  this.instanceCache = {};
   this.loadedModules = {};
   this.$provide = {
     constant: (function(key, value) {
       assertHasOwnPropertyName(key);
-      return $__0.cache[key] = value;
+      return $__0.instanceCache[key] = value;
     }),
     provider: (function(key, provider) {
-      return $__0.cache[key] = $__0.invoke(provider.$get, provider);
+      return $__0.providerCache[key + "Provider"] = provider;
     })
   };
   var loadModule = (function(moduleName) {
@@ -48,18 +49,26 @@ var Injector = function Injector(modulesToLoad) {
   modulesToLoad.forEach(loadModule);
 };
 ($traceurRuntime.createClass)(Injector, {
+  getService: function(name) {
+    if (this.instanceCache.hasOwnProperty(name)) {
+      return this.instanceCache[name];
+    } else if (this.providerCache.hasOwnProperty(name + "Provider")) {
+      var provider = this.providerCache[name + 'Provider'];
+      return this.invoke(provider.$get, provider);
+    }
+  },
   has: function(name) {
-    return this.cache.hasOwnProperty(name);
+    return this.instanceCache.hasOwnProperty(name) || this.providerCache.hasOwnProperty(name + 'Provider');
   },
   get: function(name) {
-    return this.cache[name];
+    return this.getService(name);
   },
   invoke: function(fn, context, locals) {
     var $__0 = this;
     var args = this.annotate(fn).map((function(token) {
       if (isString(token)) {
         var hasLocalProperty = locals && locals.hasOwnProperty(token);
-        return hasLocalProperty ? locals[token] : $__0.cache[token];
+        return hasLocalProperty ? locals[token] : $__0.getService(token);
       } else {
         throw new Error('Incorrect injection token! Expected a string, got `token`');
       }

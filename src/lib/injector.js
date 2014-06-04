@@ -39,16 +39,18 @@ function assertHasOwnPropertyName(key){
 export class Injector {
 
   constructor(modulesToLoad){
-    this.cache = {};
+    this.providerCache = {};
+    this.instanceCache = {};
+    // this.cache = {};
     this.loadedModules = {};
     this.$provide = {
       constant: (key, value) => {
         assertHasOwnPropertyName(key);
-        return this.cache[key] = value;
+        return this.instanceCache[key] = value;
       },
 
       provider: (key, provider) => {
-        return this.cache[key] =  this.invoke(provider.$get, provider);
+        return this.providerCache[key + "Provider"] =  provider;
       }
     };
 
@@ -72,6 +74,15 @@ export class Injector {
     modulesToLoad.forEach(loadModule);
   }
 
+  getService(name) {
+    if (this.instanceCache.hasOwnProperty(name)){
+      return this.instanceCache[name];
+    } else if (this.providerCache.hasOwnProperty(name + "Provider")){
+      var provider = this.providerCache[name + 'Provider'];
+      return this.invoke(provider.$get, provider);
+    }
+  }
+
   /**
    * @name $injector#has
    *
@@ -82,7 +93,8 @@ export class Injector {
    * @returns {boolean} returns true if injector has given service.
    */
   has(name) {
-    return this.cache.hasOwnProperty(name)
+    return this.instanceCache.hasOwnProperty(name) ||
+      this.providerCache.hasOwnProperty(name + 'Provider');
   }
 
   /**
@@ -95,7 +107,7 @@ export class Injector {
    * @return {*} The instance.
    */
   get(name) {
-    return this.cache[name]
+    return this.getService(name);
   }
 
   /**
@@ -114,7 +126,7 @@ export class Injector {
     var args = this.annotate(fn).map((token) => {
       if (isString(token)) {
         var hasLocalProperty = locals && locals.hasOwnProperty(token);
-        return hasLocalProperty ? locals[token] : this.cache[token];
+        return hasLocalProperty ? locals[token] : this.getService(token);
       } else {
         throw new Error('Incorrect injection token! Expected a string, got `token`');
       }
@@ -128,7 +140,7 @@ export class Injector {
   }
 
   annotate(fn) {
-    if (isArray(fn)){
+    if (isArray(fn)) {
       return fn.slice(0, fn.length - 1);
     } else if (fn.$inject) {
       return fn.$inject;

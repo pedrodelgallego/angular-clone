@@ -3,6 +3,12 @@ var __moduleName = "injector_spec";
 var expect = $traceurRuntime.assertObject(require("chai")).expect;
 var Injector = $traceurRuntime.assertObject(require("../lib/injector.js")).Injector;
 var setupModuleLoader = $traceurRuntime.assertObject(require("../lib/loader.js")).setupModuleLoader;
+function identity(value) {
+  return function() {
+    return value;
+  };
+}
+;
 describe('injector', (function() {
   beforeEach((function() {
     delete global.angular;
@@ -203,11 +209,6 @@ describe('injector', (function() {
       expect(instance.result).to.be.equal(3);
     }));
     it('uses the prototype of the constructor when instantiating', (function() {
-      var identity = function(value) {
-        return function() {
-          return value;
-        };
-      };
       function BaseType() {}
       BaseType.prototype.getValue = identity(42);
       function Type() {
@@ -250,6 +251,15 @@ describe('injector', (function() {
       module.provider('b', {$get: (function(a) {
           return a + 2;
         })});
+      var injector = new Injector(['myModule']);
+      expect(injector.get('b')).to.be.equal(3);
+    }));
+    it('injects the $get method of a provider lazily', (function() {
+      var module = angular.module('myModule', []);
+      module.provider('b', {$get: function(a) {
+          return a + 2;
+        }});
+      module.provider('a', {$get: identity(1)});
       var injector = new Injector(['myModule']);
       expect(injector.get('b')).to.be.equal(3);
     }));

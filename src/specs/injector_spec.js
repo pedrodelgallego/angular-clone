@@ -2,6 +2,8 @@ import {expect} from "chai"
 import {Injector} from "../lib/injector.js"
 import {setupModuleLoader} from "../lib/loader.js"
 
+function  identity(value) { return function(){ return value; }};
+
 describe('injector', () => {
 
   beforeEach(() => {
@@ -204,7 +206,6 @@ describe('injector', () => {
     });
 
     it('uses the prototype of the constructor when instantiating', () => {
-      var identity = function(value){ return function(){ return value; }};
       function BaseType() { }
       BaseType.prototype.getValue = identity(42);
       function Type() { this.v = this.getValue(); }
@@ -244,6 +245,14 @@ describe('injector', () => {
       var module = angular.module('myModule', []);
       module.constant('a', 1);
       module.provider('b', { $get: (a) => a + 2 });
+      var injector = new Injector(['myModule']);
+      expect(injector.get('b')).to.be.equal(3);
+    });
+
+    it('injects the $get method of a provider lazily', () => {
+      var module = angular.module('myModule', []);
+      module.provider('b', { $get: function(a) { return a + 2; } });
+      module.provider('a', { $get: identity(1) });
       var injector = new Injector(['myModule']);
       expect(injector.get('b')).to.be.equal(3);
     });
