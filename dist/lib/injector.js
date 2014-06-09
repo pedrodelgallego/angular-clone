@@ -17,6 +17,8 @@ function assertHasOwnPropertyName(key) {
   }
   ;
 }
+function INSTANTIATING() {}
+;
 var Injector = function Injector(modulesToLoad) {
   var $__0 = this;
   this.providerCache = {};
@@ -51,9 +53,13 @@ var Injector = function Injector(modulesToLoad) {
 ($traceurRuntime.createClass)(Injector, {
   getService: function(name) {
     if (this.instanceCache.hasOwnProperty(name)) {
+      if (this.instanceCache[name] === INSTANTIATING) {
+        throw new Error('Circular dependency found');
+      }
       return this.instanceCache[name];
     } else if (this.providerCache.hasOwnProperty(name + "Provider")) {
       var provider = this.providerCache[name + 'Provider'];
+      this.instanceCache[name] = INSTANTIATING;
       this.instanceCache[name] = this.invoke(provider.$get);
       return this.instanceCache[name];
     }

@@ -271,5 +271,15 @@ describe('injector', (function() {
       var injector = new Injector(['myModule']);
       expect(injector.get('a')).to.be.equal(injector.get('a'));
     }));
+    it('notifies the user abouta circular dependency', (function() {
+      var module = angular.module('myModule', []);
+      module.provider('a', {$get: (function(b) {})});
+      module.provider('b', {$get: (function(c) {})});
+      module.provider('c', {$get: (function(a) {})});
+      var injector = new Injector(['myModule']);
+      expect((function() {
+        return injector.get('a');
+      })).to.throw(/Circular dependency found/);
+    }));
   }));
 }));

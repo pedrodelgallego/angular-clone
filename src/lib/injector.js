@@ -36,13 +36,14 @@ function assertHasOwnPropertyName(key){
   };
 }
 
+function  INSTANTIATING() { };
+
 export class Injector {
 
   constructor(modulesToLoad){
-    this.providerCache = {};
-    this.instanceCache = {};
-    // this.cache = {};
-    this.loadedModules = {};
+    this.providerCache = { };
+    this.instanceCache = { };
+    this.loadedModules = { };
     this.$provide = {
       constant: (key, value) => {
         assertHasOwnPropertyName(key);
@@ -76,9 +77,13 @@ export class Injector {
 
   getService(name) {
     if (this.instanceCache.hasOwnProperty(name)){
+      if (this.instanceCache[name] === INSTANTIATING) {
+        throw new Error('Circular dependency found');
+      }
       return this.instanceCache[name];
     } else if (this.providerCache.hasOwnProperty(name + "Provider")){
       var provider = this.providerCache[name + 'Provider'];
+      this.instanceCache[name] = INSTANTIATING;
       this.instanceCache[name] = this.invoke(provider.$get);
       return this.instanceCache[name];
     }
