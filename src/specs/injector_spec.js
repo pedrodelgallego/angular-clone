@@ -264,13 +264,22 @@ describe('injector', () => {
       expect(injector.get('a')).to.be.equal(injector.get('a'));
     });
 
-    it('notifies the user abouta circular dependency', () => {
+    it('notifies the user about a circular dependency', () => {
       var module = angular.module('myModule', []);
       module.provider('a', {$get: (b) => { }});
       module.provider('b', {$get: (c) => { }});
       module.provider('c', {$get: (a) => { }});
       var injector = new Injector(['myModule']);
       expect( () => injector.get('a') ).to.throw(/Circular dependency found/);
+    });
+
+    it('cleans up the circular marker when instantiation fails', function() {
+      var module = angular.module('myModule', []);
+      module.provider('a', {$get: function() { throw 'Failing instantiation!'; }});
+
+      var injector = new Injector(['myModule']);
+      expect( () => injector.get('a') ).to.throw('Failing instantiation!');
+      expect( () => injector.get('a') ).to.throw('Failing instantiation!');
     });
   });
 });

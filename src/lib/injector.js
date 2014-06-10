@@ -83,8 +83,14 @@ export class Injector {
       return this.instanceCache[name];
     } else if (this.providerCache.hasOwnProperty(name + "Provider")){
       var provider = this.providerCache[name + 'Provider'];
-      this.instanceCache[name] = INSTANTIATING;
-      this.instanceCache[name] = this.invoke(provider.$get);
+      try {
+        this.instanceCache[name] = INSTANTIATING;
+        this.instanceCache[name] = this.invoke(provider.$get);
+      } finally {
+        if (this.instanceCache[name] === INSTANTIATING) {
+          delete this.instanceCache[name];
+        }
+      }
       return this.instanceCache[name];
     }
   }
