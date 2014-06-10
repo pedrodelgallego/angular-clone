@@ -281,5 +281,14 @@ describe('injector', () => {
       expect( () => injector.get('a') ).to.throw('Failing instantiation!');
       expect( () => injector.get('a') ).to.throw('Failing instantiation!');
     });
+
+    it('notifies the user abouta circular dependency', () => {
+      var module = angular.module('myModule', []);
+      module.provider('a', {$get: (b) => { }});
+      module.provider('b', {$get: (c) => { }});
+      module.provider('c', {$get: (a) => { }});
+      var injector = new Injector(['myModule']);
+      expect(() => injector.get('a') ).to.throw('Circular dependency found: c <- b <- a');
+    });
   });
 });

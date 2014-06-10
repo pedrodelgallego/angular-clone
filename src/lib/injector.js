@@ -44,6 +44,8 @@ export class Injector {
     this.providerCache = { };
     this.instanceCache = { };
     this.loadedModules = { };
+    this.path = [];
+
     this.$provide = {
       constant: (key, value) => {
         assertHasOwnPropertyName(key);
@@ -78,15 +80,17 @@ export class Injector {
   getService(name) {
     if (this.instanceCache.hasOwnProperty(name)){
       if (this.instanceCache[name] === INSTANTIATING) {
-        throw new Error('Circular dependency found');
+        throw new Error('Circular dependency found: ' + this.path.join(' <- '));
       }
       return this.instanceCache[name];
     } else if (this.providerCache.hasOwnProperty(name + "Provider")){
+      this.path.unshift(name);
       var provider = this.providerCache[name + 'Provider'];
       try {
         this.instanceCache[name] = INSTANTIATING;
         this.instanceCache[name] = this.invoke(provider.$get);
       } finally {
+        this.path.shift();
         if (this.instanceCache[name] === INSTANTIATING) {
           delete this.instanceCache[name];
         }
