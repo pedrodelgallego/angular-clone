@@ -291,13 +291,12 @@ describe('injector', () => {
       expect(() => injector.get('a') ).to.throw('Circular dependency found: c <- b <- a');
     });
 
-
     it('instantiates a provider if given as a constructor function', function() {
       var module = angular.module('myModule', []);
       module.provider('a', function AProvider() {
         this.$get = function() { return 42; };
       });
-      var injector = createInjector(['myModule']);
+      var injector = new Injector(['myModule']);
       expect(injector.get('a')).toBe(42);
     });
 

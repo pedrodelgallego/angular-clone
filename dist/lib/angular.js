@@ -9,6 +9,9 @@ Object.defineProperties(exports, {
   isArray: {get: function() {
       return isArray;
     }},
+  isFunction: {get: function() {
+      return isFunction;
+    }},
   __esModule: {value: true}
 });
 var __moduleName = "angular";

@@ -4,7 +4,8 @@ var expect = $traceurRuntime.assertObject(require("chai")).expect;
 var $__0 = $traceurRuntime.assertObject(require("../lib/angular.js")),
     equals = $__0.equals,
     isString = $__0.isString,
-    isArray = $__0.isArray;
+    isArray = $__0.isArray,
+    isFunction = $__0.isFunction;
 describe('equals', function() {
   it('should return true if same object', function() {
     var o = {};
@@ -91,5 +92,17 @@ describe("isArray", (function() {
     expect(isArray("")).to.equal(false);
     expect(isArray("foo")).to.equal(false);
     expect(isArray([])).to.equal(true);
+  });
+}));
+describe("isFunction", (function() {
+  it('should identify a function', function() {
+    expect(isFunction({})).to.equal(false);
+    expect(isFunction(1)).to.equal(false);
+    expect(isFunction(2)).to.equal(false);
+    expect(isFunction(undefined)).to.equal(false);
+    expect(isFunction(null)).to.equal(false);
+    expect(isFunction("")).to.equal(false);
+    expect(isFunction("foo")).to.equal(false);
+    expect(isFunction((function() {}))).to.equal(true);
   });
 }));

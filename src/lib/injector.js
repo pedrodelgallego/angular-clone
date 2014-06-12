@@ -25,7 +25,7 @@
  *   });
  * ```
  */
-import {isString, isArray} from "./angular.js"
+import {isString, isArray, isFunction} from "./angular.js"
 
 var FN_ARGS = /^function\s*[^\(]*\(\s*([^\)]*)\)/m;
 var FN_ARG = /^\s*(\S+)\s*$/;

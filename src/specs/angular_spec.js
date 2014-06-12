@@ -1,5 +1,5 @@
 import {expect} from "chai"
-import {equals, isString, isArray} from "../lib/angular.js"
+import {equals, isString, isArray, isFunction} from "../lib/angular.js"
 
 describe('equals', function() {
   it('should return true if same object', function() {
@@ -95,6 +95,19 @@ describe("isArray", () => {
     expect(isArray("foo")).to.equal(false);
 
     expect(isArray([])).to.equal(true);
+  });
+});
 
+describe("isFunction", () => {
+  it('should identify a function', function() {
+    expect(isFunction({})).to.equal(false);
+    expect(isFunction(1)).to.equal(false);
+    expect(isFunction(2)).to.equal(false);
+    expect(isFunction(undefined)).to.equal(false);
+    expect(isFunction(null)).to.equal(false);
+    expect(isFunction("")).to.equal(false);
+    expect(isFunction("foo")).to.equal(false);
+
+    expect(isFunction(() => {})).to.equal(true);
   });
 });

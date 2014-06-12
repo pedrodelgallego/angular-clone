@@ -8,7 +8,8 @@ Object.defineProperties(exports, {
 var __moduleName = "injector";
 var $__2 = $traceurRuntime.assertObject(require("./angular.js")),
     isString = $__2.isString,
-    isArray = $__2.isArray;
+    isArray = $__2.isArray,
+    isFunction = $__2.isFunction;
 var FN_ARGS = /^function\s*[^\(]*\(\s*([^\)]*)\)/m;
 var FN_ARG = /^\s*(\S+)\s*$/;
 function assertHasOwnPropertyName(key) {
