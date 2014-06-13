@@ -53,6 +53,9 @@ export class Injector {
       },
 
       provider: (key, provider) => {
+        if (isFunction(provider)) {
+          provider = this.instantiate(provider);
+        }
         return this.providerCache[key + "Provider"] =  provider;
       }
     };

@@ -32,6 +32,9 @@ var Injector = function Injector(modulesToLoad) {
       return $__0.instanceCache[key] = value;
     }),
     provider: (function(key, provider) {
+      if (isFunction(provider)) {
+        provider = $__0.instantiate(provider);
+      }
       return $__0.providerCache[key + "Provider"] = provider;
     })
   };
