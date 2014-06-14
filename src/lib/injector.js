@@ -86,6 +86,8 @@ export class Injector {
         throw new Error('Circular dependency found: ' + this.path.join(' <- '));
       }
       return this.instanceCache[name];
+    } else if (this.providerCache.hasOwnProperty(name)) {
+      return this.providerCache[name];
     } else if (this.providerCache.hasOwnProperty(name + "Provider")){
       this.path.unshift(name);
       var provider = this.providerCache[name + 'Provider'];

@@ -325,5 +325,23 @@ describe('injector', (function() {
       var injector = new Injector(['myModule']);
       expect(injector.get('a')).to.be.equal(3);
     }));
+    it('injects another provider to a provider constructor function', (function() {
+      var module = angular.module('myModule', []);
+      module.provider('a', function AProvider() {
+        var value = 1;
+        this.setValue = function(v) {
+          value = v;
+        };
+        this.$get = function() {
+          return value;
+        };
+      });
+      module.provider('b', function BProvider(aProvider) {
+        aProvider.setValue(2);
+        this.$get = function() {};
+      });
+      var injector = new Injector(['myModule']);
+      expect(injector.get('a')).to.be.equal(2);
+    }));
   }));
 }));
