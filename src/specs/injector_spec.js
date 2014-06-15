@@ -217,7 +217,6 @@ describe('injector', () => {
     });
 
     it('supports locals when instantiating', () => {
-      var module = angular.module('myModule', []);
       module.constant('a', 1);
       module.constant('b', 2);
       var injector = new Injector(['myModule']);
@@ -242,7 +241,6 @@ describe('injector', () => {
     });
 
     it('injects the $get method of a provider', () => {
-      var module = angular.module('myModule', []);
       module.constant('a', 1);
       module.provider('b', { $get: (a) => a + 2 });
       var injector = new Injector(['myModule']);
@@ -250,7 +248,6 @@ describe('injector', () => {
     });
 
     it('injects the $get method of a provider lazily', () => {
-      var module = angular.module('myModule', []);
       module.provider('b', { $get: (a) => a + 2  });
       module.provider('a', { $get: identity(1) });
       var injector = new Injector(['myModule']);
@@ -258,14 +255,12 @@ describe('injector', () => {
     });
 
     it('instantiates a dependency only once', () => {
-      var module = angular.module('myModule', []);
       module.provider('a', {$get: () => { return {}; }});
       var injector = new Injector(['myModule']);
       expect(injector.get('a')).to.be.equal(injector.get('a'));
     });
 
     it('notifies the user about a circular dependency', () => {
-      var module = angular.module('myModule', []);
       module.provider('a', {$get: (b) => { }});
       module.provider('b', {$get: (c) => { }});
       module.provider('c', {$get: (a) => { }});
@@ -274,7 +269,6 @@ describe('injector', () => {
     });
 
     it('cleans up the circular marker when instantiation fails', function() {
-      var module = angular.module('myModule', []);
       module.provider('a', {$get: function() { throw 'Failing instantiation!'; }});
 
       var injector = new Injector(['myModule']);
@@ -283,7 +277,6 @@ describe('injector', () => {
     });
 
     it('notifies the user abouta circular dependency', () => {
-      var module = angular.module('myModule', []);
       module.provider('a', {$get: (b) => { }});
       module.provider('b', {$get: (c) => { }});
       module.provider('c', {$get: (a) => { }});
@@ -292,7 +285,6 @@ describe('injector', () => {
     });
 
     it('instantiates a provider if given as a constructor function', () => {
-      var module = angular.module('myModule', []);
       module.provider('a', function AProvider() {
         this.$get = function() { return 42; };
       });
@@ -301,7 +293,6 @@ describe('injector', () => {
     });
 
     it('injects the given provider constructor function', () => {
-      var module = angular.module('myModule', []);
       module.constant('b', 2);
       module.provider('a', function AProvider(b) {
         this.$get = function() { return 1 + b; };
@@ -311,7 +302,6 @@ describe('injector', () => {
     });
 
     it('injects another provider to a provider constructor function', () => {
-      var module = angular.module('myModule', []);
       module.provider('a', function AProvider() {
         var value = 1;
         this.setValue = function(v) { value = v; };
@@ -323,6 +313,34 @@ describe('injector', () => {
       });
       var injector = new Injector(['myModule']);
       expect(injector.get('a')).to.be.equal(2);
+    });
+
+    it('does not inject an instance to a provider constructor function', () => {
+      var module = angular.module('myModule', []);
+      module.provider('a', function AProvider()  { this.$get = function() { return 1; }; });
+      module.provider('b', function BProvider(a) { this.$get = function() { return a; }; });
+      expect(function() {new Injector(['myModule']);}).to.throw();
+    });
+
+    it('does not inject a provider to a $get function', function() {
+      module.provider('a', function AProvider() {this.$get = function() { return 1; };});
+      module.provider('b', function BProvider() {this.$get = function(aProvider) { return aProvider.$get(); };});
+
+      var injector = new Injector(['myModule']);
+      expect(function() {injector.get('b');}).to.throw();
+    });
+
+    it('does not inject a provider to invoke', function() {
+      module.provider('a', function AProvider() { this.$get = function() { return 1; }});
+      var injector = new Injector(['myModule']);
+      expect(function() { injector.invoke(function(aProvider) { }); }).to.throw();
+    });
+
+
+    it('does not give access to providers through get', function() {
+      module.provider('a', function AProvider() {this.$get = function() { return 1; };});
+      var injector = new Injector(['myModule']);
+      expect(function() {injector.get('aProvider');}).to.throw();
     });
   });
 });
