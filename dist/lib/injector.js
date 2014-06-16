@@ -26,14 +26,22 @@ var Injector = function Injector(modulesToLoad) {
   this.instanceCache = {};
   this.loadedModules = {};
   this.path = [];
+  this.providerInjector = this.createInternalInjector(this.providerCache, (function() {
+    throw 'Unknown provider: ' + $__0.path.join(' <- ');
+  }));
+  this.instanceInjector = this.createInternalInjector(this.instanceCache, (function(name) {
+    var provider = providerInjector.get(name + 'Provider');
+    return instanceInjector.invoke(provider.$get, provider);
+  }));
   this.$provide = {
     constant: (function(key, value) {
       assertHasOwnPropertyName(key);
+      $__0.providerCache[key] = value;
       return $__0.instanceCache[key] = value;
     }),
     provider: (function(key, provider) {
       if (isFunction(provider)) {
-        provider = $__0.instantiate(provider);
+        provider = $__0.providerInjector.instantiate(provider);
       }
       return $__0.providerCache[key + "Provider"] = provider;
     })
@@ -54,6 +62,7 @@ var Injector = function Injector(modulesToLoad) {
     }
   });
   modulesToLoad.forEach(loadModule);
+  return this.instanceInjector;
 };
 ($traceurRuntime.createClass)(Injector, {
   getService: function(name) {
@@ -119,5 +128,55 @@ var Injector = function Injector(modulesToLoad) {
     var instance = Object.create(UnwrappedType.prototype);
     this.invoke(Type, instance, locals);
     return instance;
+  },
+  createInternalInjector: function(cache, factoryFn) {
+    var $__0 = this;
+    function getService(name) {
+      if (cache.hasOwnProperty(name)) {
+        if (cache[name] === INSTANTIATING) {
+          throw new Error('Circular dependency found: ' + this.path.join(' <- '));
+        }
+        return cache[name];
+      } else {
+        this.path.unshift(name);
+        cache[name] = INSTANTIATING;
+        try {
+          return (cache[name] = factoryFn(name));
+        } finally {
+          this.path.shift();
+          if (cache[name] === INSTANTIATING) {
+            delete cache[name];
+          }
+        }
+      }
+    }
+    var invoke = (function(fn, self, locals) {
+      var args = $__0.annotate(fn).map((function(token) {
+        if (isString(token)) {
+          return locals && locals.hasOwnProperty(token) ? locals[token] : getService(token);
+        } else {
+          throw 'Incorrect injection token! Expected a string, got ' + token;
+        }
+      }));
+      if (isArray(fn)) {
+        fn = fn[fn.length - 1];
+      }
+      return fn.apply(self, args);
+    });
+    var instantiate = (function(Type, locals) {
+      var UnwrappedType = isArray(Type) ? Type[Type.length - 1] : Type;
+      var instance = Object.create(UnwrappedType.prototype);
+      invoke(Type, instance, locals);
+      return instance;
+    });
+    return {
+      has: function(name) {
+        return cache.hasOwnProperty(name) || providerCache.hasOwnProperty(name + 'Provider');
+      },
+      get: getService,
+      annotate: this.annotate,
+      invoke: invoke,
+      instantiate: instantiate
+    };
   }
 }, {});
